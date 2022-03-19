@@ -1,10 +1,29 @@
+// class Data {
+//   Map<String, dynamic> getStory = {};
+//   late String story;
+//   Data(this.story);
+//
+//   Data.toMap(String text) {
+//     getStory = {"story": text};
+//   }
+//
+//   Data.fromJson(Map<dynamic, dynamic> json) {
+//     story = json["story"];
+//   }
+//
+// }
+
+
+
+
 class Data {
   late String story;
+  late String title;
+  late var date;
 
-  Data({required this.story});
-
-  Data.fromJson(Map<String, dynamic> map) {
-    story = map["story"];
+  Data.fromJson(Map<dynamic, dynamic> json) {
+    story = json["story"];
+    title = json["title"];
+    date = json["date"];
   }
-
 }

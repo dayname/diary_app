@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'Data.dart';
@@ -95,7 +94,8 @@ class _InputNotesState extends State<InputNotes> {
                   ),
                 ]
               ),
-            ],)
+            ],
+            )
         )
     );
   }
@@ -119,8 +119,5 @@ class _InputNotesState extends State<InputNotes> {
     setState(() {
       date = newDate;
     });
-
   }
-
-
 }

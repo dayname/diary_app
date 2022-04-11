@@ -1,6 +1,9 @@
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:diary_app/services/data.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'Data.dart';
 
 
 class InputNotes extends StatefulWidget {
@@ -24,10 +27,11 @@ class _InputNotesState extends State<InputNotes> {
 
   var date;
   var newDate;
-
   TextEditingController textController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   @override
+
+
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
@@ -41,8 +45,7 @@ class _InputNotesState extends State<InputNotes> {
         body: Container(
           padding: const EdgeInsets.all(16),
             child: Column(children: [
-
-               const SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
                 style: TextStyle(color: Colors.grey),
                 maxLines: 1,
@@ -56,7 +59,7 @@ class _InputNotesState extends State<InputNotes> {
                   labelStyle: TextStyle(color: Colors.grey),
                 ),
               ),
-            const SizedBox(height: 16,),
+              const SizedBox(height: 16,),
               TextField(
                 maxLines: 5,
                 style: TextStyle(color: Colors.grey),
@@ -71,14 +74,14 @@ class _InputNotesState extends State<InputNotes> {
                 ),
               ),
               const SizedBox(height: 16,),
-
               Stack(
-                children: [ Align(
+                children: [Align(
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       onPressed: () {
-                      addStory(text: textController.text, title: titleController.text);
-                      },
+                        addStory(text: textController.text, title: titleController.text);
+                          Navigator.pop(context);
+                        },
                       child: Text("Сохранить".toUpperCase()),
                     ),
                   ),
@@ -99,11 +102,17 @@ class _InputNotesState extends State<InputNotes> {
         )
     );
   }
-  void addStory({required String text, required String title})
-  {
-    Navigator.pop(context, [text, title, date]);
-    // .replaceRange(10, date.length, '')
+
+  Future<void> addStory({required String text, required String title})
+  async {
+    await FirebaseFirestore.instance.collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .collection("UserStories")
+        .doc()
+        .set({"title": title, "text": text, "date" : date});
+
  }
+
 
   Future _showCalendar(BuildContext context) async{
     final newDate =  await showDatePicker(
@@ -120,4 +129,17 @@ class _InputNotesState extends State<InputNotes> {
       date = newDate;
     });
   }
+
+ // Future<void> getData() async{
+ //     await FirebaseFirestore.instance.collection("UserData")
+ //        .doc('${FirebaseAuth.instance.currentUser?.uid}')
+ //        .get()
+ //        .then((DocumentSnapshot doc) {
+ //          var map = doc.data() as Map<String, dynamic> ;
+ //        datas.add(Data.fromDoc(map));
+ //        id = doc.id;
+ //    });
+ //
+ //  }
+
 }

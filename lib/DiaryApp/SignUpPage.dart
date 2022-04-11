@@ -1,13 +1,12 @@
-import 'package:diary_app/DiaryApp/LoginSignupPage.dart';
-import 'package:diary_app/domain/authuser.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:diary_app/DiaryApp/MainPage.dart';
+import 'package:diary_app/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../services/auth.dart';
 
-
-class SignUpPage extends StatelessWidget {
+class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
-
   static PageRouteBuilder getRoute() {
     return PageRouteBuilder(
         transitionsBuilder: (_, animation, secondAnimation, child) {
@@ -21,18 +20,22 @@ class SignUpPage extends StatelessWidget {
   }
 
   @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  @override
   Widget build(BuildContext context) {
-    TextEditingController emailController =    TextEditingController();
+    TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
-    TextEditingController nameController =     TextEditingController();
+    TextEditingController nameController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         elevation: 4,
         title: Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Text("Регистрация", style: const TextStyle(fontSize: 20,),),
-        ),
-      ),
+        ),),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -88,11 +91,19 @@ class SignUpPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(onPressed: () {
-              toRegister(email: emailController.text, password: passwordController.text, name: nameController.text);
+              toRegister(
+                  email: emailController.text,
+                  password: passwordController.text,
+                  name: nameController.text);
               Navigator.pop(context);
-            }, child: Text("Зарегистрироваться".toUpperCase(), style: TextStyle(fontSize: 20,),),
+            },
+
+
+              child: Text("Зарегистрироваться".toUpperCase(),
+                style: TextStyle(fontSize: 20,),),
               style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.only(right: 55,left: 55, top: 15, bottom: 13)
+                  padding: EdgeInsets.only(
+                      right: 55, left: 55, top: 15, bottom: 13)
               ),
             ),
           ),
@@ -101,7 +112,15 @@ class SignUpPage extends StatelessWidget {
     );
   }
 
-  toRegister({required String email, required String password, required String name}) async{
+  toRegister(
+      {required String email, required String password, required String name}) async{
     await AuthService().registerWithEmailAndPassword(email, password, name);
+    setState(() {});
   }
+
+  // Future <void> sendData()async {
+  //   await FirebaseFirestore.instance.collection("UserData")
+  //       .doc(FirebaseAuth.instance.currentUser?.uid)
+  //       .set({"email": FirebaseAuth.instance.currentUser?.email, "name" : FirebaseAuth.instance.currentUser?.displayName});
+  // }
 }

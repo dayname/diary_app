@@ -1,8 +1,5 @@
 import 'package:diary_app/DiaryApp/LoginSignupPage.dart';
 import 'package:diary_app/DiaryApp/MainPage.dart';
-import 'package:diary_app/domain/authuser.dart';
-import 'package:diary_app/services/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -44,19 +41,37 @@ class _MyAuthState extends State<MyAuth> {
 
 
   @override
-  bool isLogged = false;
-  void initState() {
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      setState(() => isLogged = user != null);
-    });
+  // void initState() {
+  //   FirebaseAuth.instance.authStateChanges().listen((user) {
+  //     setState(() => isLogged = user != null);
+  //   });
+  //   super.initState();
+  //   setState(() {
+  //
+  //   });
+  // }
+  void onStart() {
+    checker();
     super.initState();
-    // new Future.delayed(const Duration(seconds: 2));
+    setState(() {
+
+    });
   }
+  bool isLogged = false;
     Widget build(BuildContext context) {
       return Scaffold(
         body: isLogged ? MyHomePage() : LoginSignupPage(),
       );
     }
+
+  void checker() async {
+    if (await FirebaseAuth.instance.currentUser?.uid != null) {
+      isLogged != isLogged;
+      setState(() {});
+    }
+  }
+
+
   // checker() {
   //   FirebaseAuth.instance
   //       .userChanges()

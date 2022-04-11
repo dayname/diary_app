@@ -1,9 +1,7 @@
 
-class getData {
+class Story {
   Map<String, dynamic> getStory = {};
-
-  getData.toMap(List result) {
+  Story.toMap(List result) {
     getStory = {"story": result[0], "title": result[1], "date": result[2]};
   }
-
 }

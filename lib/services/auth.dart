@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../domain/authuser.dart';
@@ -18,11 +19,14 @@ class AuthService {
     }
   }
 
-  Future<AuthUser?> registerWithEmailAndPassword(String email, String password, String name) async {
+ registerWithEmailAndPassword(String email, String password, String name) async{
     try{
       UserCredential result = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
       User? user = result.user;
-      user?.updateDisplayName(name);
+      user?.updateDisplayName(name).then((value) {
+        FirebaseFirestore.instance.collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}");
+      });
       return AuthUser.fromFirebase(user);
     }on FirebaseException catch(error){
       return null;
@@ -33,7 +37,6 @@ class AuthService {
   }
   setName(String name){
     String? name;
-
   }
   Stream<AuthUser?> get currentUser{
     return _firebaseAuth.authStateChanges().map((User? user) => user != null ? AuthUser.fromFirebase(user) : null);

@@ -1,11 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diary_app/DiaryApp/DataPage.dart';
-import 'package:diary_app/DiaryApp/LoginSignupPage.dart';
+import 'package:diary_app/DiaryApp/StoryPage.dart';
+import 'package:diary_app/services/UserInfo.dart';
 import 'package:diary_app/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'Data.dart';
-import 'getData.dart';
+import 'DataStory.dart';
 import 'more_settings.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -16,169 +16,174 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int selectindex = -1;
-  int index = 0;
-  List<Map> getStories = [];
-  List<Data> stories = [];
-
   @override
+  List<DataStory> storyList = [];
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: selectindex == -1
-          ? AppBar(
-              actions: [
-                PopupMenuButton(onSelected: choiceAction,
-                color: Colors.yellow,
-                  itemBuilder: (BuildContext context){
-                  return Constants.choices.map((String choice) {
-                    return PopupMenuItem(value: choice,
+      appBar: AppBar(
+          actions: [
+            PopupMenuButton(onSelected: choiceAction,
+              color: Colors.yellow,
+              itemBuilder: (BuildContext context) {
+                return Constants.choices.map((String choice) {
+                  return PopupMenuItem(value: choice,
                     child: Text(choice),);
-                  }).toList();
-                },)
-              ],
-              elevation: 4,
-              title: Padding(
-                      padding: const EdgeInsets.only(top: 6, left: 105),
-                      child: Text("Diary App".toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 30,
-                        ),
-                      ),
-              )
-      )
-
-          : AppBar(
-          title: Text(
-            "${stories[selectindex].title}",
-            style: const TextStyle(fontSize: 18),
-          ),
-          leading: IconButton(
-              onPressed: () {
-                setState(() {
-                  selectindex = -1;
-                });
-              },
-              icon: const Icon(Icons.arrow_back))),
-      floatingActionButton: selectindex == -1
-          ? FloatingActionButton(
+                }).toList();
+              },)
+          ],
+          elevation: 4,
+          title: Padding(
+            padding: const EdgeInsets.only(top: 6, left: 105),
+            child: Text("Diary App".toUpperCase(),
+              style: const TextStyle(
+                fontSize: 30,
+              ),
+            ),
+          )
+      ),
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
-          goToSecondScreen();
+          goToDataPage();
         },
         child: Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Text(
             "+", style: const TextStyle(fontFamily: 'Rostov', fontSize: 40,),),
         ),
-      )
-          : null,
-      body: emptyViewBuild(),
+      ),
+      body:
+      FutureBuilder<List<DataStory>>(
+        future: getStory(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+    return Text('${snapshot.error}', style: TextStyle(color: Colors.white),);
+    }
+          if (snapshot.connectionState == ConnectionState.done) {
+          storyList = snapshot.data!;
+          if (storyList.isEmpty)
+           { return emptyViewBuild();}
+          else
+            {return listBuilder(storyList);}
+
+    }
+
+    return Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+        ));
+        }
+      ),
     );
   }
- emptyViewBuild() {
+
+  emptyViewBuild() {
     return Container(
-      child: stories.isEmpty
-          ? Center(
+      child:
+          Center(
           child: Text(
-            '${FirebaseAuth.instance.currentUser
-                ?.displayName}, напишите свою первую историю',
+            '${userInfo.getInfo().name}, напишите свою первую историю',
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 25,
                 fontFamily: 'Rostov',
                 color: Colors.yellow.withOpacity(0.5)),
-          ))
-          : buildStoryList(),
+          )
+       )
     );
   }
+  
 
-  Widget buildStoryList() {
-    return selectindex == -1 ? listBuilder() : story();
-  }
-
-  listBuilder() {
-    return ListView.builder(
-        itemCount: stories.length,
-        itemBuilder: (BuildContext context, index) {
-          return Container(
-              child: Column(children: [
-                ListTile(
-                  onTap: () {
-                    setState(() {
-                      selectindex = index;
-                    });
-                  },
-                  horizontalTitleGap: -4,
-                  leading: Padding(
-                    padding: const EdgeInsets.only(top: 3),
-                    child: Text(
-                      "${index + 1}",
+  listBuilder(List<DataStory> storyList) {
+    return RefreshIndicator(
+      onRefresh: () async{
+        storyList = [];
+        await getStory();
+        setState(() {});
+        return Future.value();
+      },
+      child: ListView.builder(
+          itemCount: storyList.length,
+          itemBuilder: (BuildContext context, index) {
+            return Container(
+                child: Column(children: [
+                  ListTile(
+                    onTap: () {
+                        Navigator.push(context, StoryPage.getRoute(storyList[index]));
+                    },
+                    horizontalTitleGap: -4,
+                    leading: Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Text(
+                        "${index + 1}",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      "${storyList[index].title}",
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         color: Colors.grey,
                       ),
                     ),
-                  ),
-                  title: Text(
-                    "${stories[index].title}",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.grey,
+                    subtitle: storyList[index].date != null ? Text("${storyList[index].date}",
+                        style: TextStyle(color: Colors.grey)) : null,
+                    trailing: IconButton(onPressed: (){
+                      setState(() {
+                        delete(storyList[index].docId);
+                      });
+                    }, icon: Icon(
+                        Icons.delete_outline,
+                        color: Colors.white70,),
                     ),
                   ),
-                  subtitle: Text("${stories[index].date}",
-                      style: TextStyle(color: Colors.grey)),
-                  trailing: const Icon(
-                    Icons.delete_outline,
-                    color: Colors.white70,
+                  Container(
+                    height: 1,
+                    width: 500,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.rectangle,
+                    ),
                   ),
-                ),
-                Container(
-                  height: 1,
-                  width: 500,
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                    shape: BoxShape.rectangle,
-                  ),
-                ),
-              ]));
-        });
+                ]));
+          }),
+    );
   }
 
-  story() {
-    return Container(
-        padding: const EdgeInsets.all(16),
-        child: Scrollbar(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Text(
-                  "${stories[selectindex].story}",
-                  style: const TextStyle(fontSize: 18, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ));
-  }
-
-  goToSecondScreen() async {
-    stories.clear();
-    final result = await Navigator.push(context, InputNotes.getRoute(context)) as List<dynamic>;
-
-    setState(() {
-      getData getdata = getData.toMap(result);
-      getStories.add(getdata.getStory);
-      getStories.forEach((element) {
-        Data data = Data.fromJson(element);
-        stories.add(data);
-      });
-    });
-  }
+  goToDataPage() async {
+    await Navigator.push(
+        context, InputNotes.getRoute(context));
+    setState(() {});
+      }
 
 
-  void choiceAction(String choice){
-    if(choice == Constants.LogOut){
+
+  void choiceAction(String choice) {
+    if (choice == Constants.LogOut) {
       AuthService().logOut();
     }
+  }
+
+ Future<List<DataStory>> getStory() async {
+        List<DataStory> stories = [];
+    await FirebaseFirestore.instance
+        .collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .collection("UserStories")
+        .get()
+        .then((QuerySnapshot querySnapshot){
+          querySnapshot.docs.forEach((QueryDocumentSnapshot doc) {
+            stories.add(DataStory.fromDoc(doc));
+          });
+    });
+        return stories;
+  }
+
+  delete(String docId) async {
+    await FirebaseFirestore.instance.collection("UsersData")
+        .doc("${userInfo.getInfo().user_id}")
+        .collection("UserStories").doc("${docId}").delete();
   }
 }

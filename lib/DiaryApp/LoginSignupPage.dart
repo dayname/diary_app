@@ -14,7 +14,7 @@ class LoginSignupPage extends StatefulWidget {
   //       pageBuilder: (_, __, ___) {
   //         return new LoginSignupPage();
   //       });
-// }
+  // }
 
   const LoginSignupPage({Key? key}) : super(key: key);
 
@@ -92,9 +92,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             ),),
           ),
           InkWell(onTap: () {
-            setState(() {
               Navigator.push(context, SignUpPage.getRoute());
-            });
           },child: Center(child: Text("Еще не зарегистрированы? Регистрируйтесь!", style: TextStyle(color: Colors.grey),))),
         ],
       );
@@ -105,3 +103,4 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   }
 
 }
+

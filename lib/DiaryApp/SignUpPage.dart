@@ -1,8 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:diary_app/DiaryApp/MainPage.dart';
-import 'package:diary_app/main.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../domain/authuser.dart';
 import '../services/auth.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -96,8 +93,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   password: passwordController.text,
                   name: nameController.text);
               Navigator.pop(context);
+              setState(() {});
             },
-
 
               child: Text("Зарегистрироваться".toUpperCase(),
                 style: TextStyle(fontSize: 20,),),
@@ -114,7 +111,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   toRegister(
       {required String email, required String password, required String name}) async{
-    await AuthService().registerWithEmailAndPassword(email, password, name);
+    AuthUser? authService = await AuthService().registerWithEmailAndPassword(email, password, name);
     setState(() {});
   }
 

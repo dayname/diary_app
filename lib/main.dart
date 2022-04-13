@@ -31,32 +31,28 @@ class MyApp extends StatelessWidget {
 
 class MyAuth extends StatefulWidget {
   MyAuth({Key? key}) : super(key: key);
-
   @override
-
   State<MyAuth> createState() => _MyAuthState();
 }
 
 class _MyAuthState extends State<MyAuth> {
 
-
   @override
-  // void initState() {
-  //   FirebaseAuth.instance.authStateChanges().listen((user) {
-  //     setState(() => isLogged = user != null);
-  //   });
+  void initState() {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() => isLogged = user != null);
+    });
+    super.initState();
+    setState(() {});
+  }
+
+  // void onStart() {
+  //   checker();
   //   super.initState();
   //   setState(() {
   //
   //   });
   // }
-  void onStart() {
-    checker();
-    super.initState();
-    setState(() {
-
-    });
-  }
   bool isLogged = false;
     Widget build(BuildContext context) {
       return Scaffold(
@@ -66,7 +62,7 @@ class _MyAuthState extends State<MyAuth> {
 
   void checker() async {
     if (await FirebaseAuth.instance.currentUser?.uid != null) {
-      isLogged != isLogged;
+      isLogged = true;
       setState(() {});
     }
   }

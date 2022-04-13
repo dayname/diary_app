@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diary_app/services/data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 
 
@@ -27,6 +28,7 @@ class _InputNotesState extends State<InputNotes> {
 
   var date;
   var newDate;
+  String? formattedDate;
   TextEditingController textController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   @override
@@ -37,9 +39,8 @@ class _InputNotesState extends State<InputNotes> {
         appBar: AppBar(
           title: const Padding(
             padding: EdgeInsets.only(top: 6),
-            child: Text("Введите запись"),
+            child: Text("Введите историю"),
           ),
-          leading: Align(alignment: Alignment.centerRight, child: IconButton(onPressed: (){Navigator.pop(context);}, icon: const Icon(Icons.arrow_back),))
         ),
 
         body: Container(
@@ -53,7 +54,7 @@ class _InputNotesState extends State<InputNotes> {
                 decoration: const InputDecoration(
                   iconColor: Colors.yellow,
                   fillColor: Colors.white30,
-                  icon: Icon(Icons.book, color: Colors.grey,),
+                  icon: Icon(Icons.title, color: Colors.grey,),
                   filled: true,
                   labelText: 'Название',
                   labelStyle: TextStyle(color: Colors.grey),
@@ -74,28 +75,25 @@ class _InputNotesState extends State<InputNotes> {
                 ),
               ),
               const SizedBox(height: 16,),
-              Stack(
-                children: [Align(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        addStory(text: textController.text, title: titleController.text);
-                          Navigator.pop(context);
-                        },
-                      child: Text("Сохранить".toUpperCase()),
-                    ),
-                  ),
-
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: ElevatedButton(
+              Padding(
+                padding: const EdgeInsets.only(left: 40),
+                child: Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
                       onPressed: () {
                         _showCalendar(context);
                       },
-                      child: Text("Выбрать дату".toUpperCase()),
+                      child: Icon(Icons.date_range, color: Colors.black,),
                     ),
-                  ),
-                ]
+                    ElevatedButton(
+                      onPressed: () {
+                        addStory(text: textController.text, title: titleController.text);
+                        Navigator.pop(context);
+                      },
+                      child: Text("Сохранить".toUpperCase()),
+                    ),
+                  ]
+                ),
               ),
             ],
             )
@@ -109,10 +107,9 @@ class _InputNotesState extends State<InputNotes> {
         .doc("${FirebaseAuth.instance.currentUser?.uid}")
         .collection("UserStories")
         .doc()
-        .set({"title": title, "text": text, "date" : date});
+        .set({"title": title, "text": text, "date" : formattedDate});
 
  }
-
 
   Future _showCalendar(BuildContext context) async{
     final newDate =  await showDatePicker(
@@ -124,10 +121,19 @@ class _InputNotesState extends State<InputNotes> {
       fieldHintText: "Выберите дату",
       helpText:  "Выберите дату",
     );
-    if (newDate == null) return;
-    setState(() {
-      date = newDate;
+    if (newDate == null) {
+      return null;
+    } else {
+      setState(() {
+      final String formatted = DateFormat('dd-MM-yyyy').format(newDate);
+      formattedDate = formatted;
     });
+    }
+  }
+
+  String dateFormatter(){
+    final String formatted = DateFormat.yMMMd().format(date);
+    return formatted;
   }
 
  // Future<void> getData() async{

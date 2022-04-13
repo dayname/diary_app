@@ -4,6 +4,7 @@ import 'package:diary_app/DiaryApp/StoryPage.dart';
 import 'package:diary_app/services/UserInfo.dart';
 import 'package:diary_app/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'DataStory.dart';
 import 'more_settings.dart';
@@ -18,22 +19,26 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   List<DataStory> storyList = [];
+  FirebaseAuth firebase = FirebaseAuth.instance;
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
           actions: [
-            PopupMenuButton(onSelected: choiceAction,
-              color: Colors.yellow,
-              itemBuilder: (BuildContext context) {
-                return Constants.choices.map((String choice) {
-                  return PopupMenuItem(value: choice,
-                    child: Text(choice),);
-                }).toList();
-              },)
+            Padding(
+              padding: const EdgeInsets.only(right: 15.0),
+              child: PopupMenuButton(onSelected: choiceAction,
+                color: Colors.yellow,
+                itemBuilder: (BuildContext context) {
+                  return Constants.choices.map((String choice) {
+                    return PopupMenuItem(value: choice,
+                      child: Text(choice),);
+                  }).toList();
+                },),
+            )
           ],
           elevation: 4,
           title: Padding(
-            padding: const EdgeInsets.only(top: 6, left: 105),
+            padding: const EdgeInsets.only(top: 6, left: 110),
             child: Text("Diary App".toUpperCase(),
               style: const TextStyle(
                 fontSize: 30,
@@ -55,13 +60,15 @@ class _MyHomePageState extends State<MyHomePage> {
       FutureBuilder<List<DataStory>>(
         future: getStory(),
         builder: (context, snapshot) {
+          String? name = firebase.currentUser?.displayName;
           if (snapshot.hasError) {
     return Text('${snapshot.error}', style: TextStyle(color: Colors.white),);
     }
           if (snapshot.connectionState == ConnectionState.done) {
           storyList = snapshot.data!;
           if (storyList.isEmpty)
-           { return emptyViewBuild();}
+          {
+             return emptyViewBuild(name!);}
           else
             {return listBuilder(storyList);}
 
@@ -76,12 +83,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  emptyViewBuild() {
+  emptyViewBuild(String name){
     return Container(
       child:
           Center(
           child: Text(
-            '${userInfo.getInfo().name}, напишите свою первую историю',
+            '${name}, напишите свою первую историю',
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 25,
@@ -105,49 +112,52 @@ class _MyHomePageState extends State<MyHomePage> {
           itemCount: storyList.length,
           itemBuilder: (BuildContext context, index) {
             return Container(
-                child: Column(children: [
-                  ListTile(
-                    onTap: () {
-                        Navigator.push(context, StoryPage.getRoute(storyList[index]));
-                    },
-                    horizontalTitleGap: -4,
-                    leading: Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Text(
-                        "${index + 1}",
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Column(children: [
+                    ListTile(
+                      onTap: () {
+                          Navigator.push(context, StoryPage.getRoute(storyList[index]));
+                      },
+                      horizontalTitleGap: -4,
+                      leading: Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: Text(
+                          "${index + 1}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        "${storyList[index].title}",
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           color: Colors.grey,
                         ),
                       ),
-                    ),
-                    title: Text(
-                      "${storyList[index].title}",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.grey,
+                      subtitle: storyList[index].date != null ? Text("${storyList[index].date}",
+                          style: TextStyle(color: Colors.grey)) : Text(""),
+                      trailing: IconButton(onPressed: (){
+                        setState(() {
+                          delete(storyList[index].docId);
+                        });
+                      }, icon: Icon(
+                          Icons.delete_outline,
+                          color: Colors.white70,),
                       ),
                     ),
-                    subtitle: storyList[index].date != null ? Text("${storyList[index].date}",
-                        style: TextStyle(color: Colors.grey)) : null,
-                    trailing: IconButton(onPressed: (){
-                      setState(() {
-                        delete(storyList[index].docId);
-                      });
-                    }, icon: Icon(
-                        Icons.delete_outline,
-                        color: Colors.white70,),
+                    Container(
+                      height: 1,
+                      width: 500,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        shape: BoxShape.rectangle,
+                      ),
                     ),
-                  ),
-                  Container(
-                    height: 1,
-                    width: 500,
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      shape: BoxShape.rectangle,
-                    ),
-                  ),
-                ]));
+                  ]),
+                ));
           }),
     );
   }
@@ -181,9 +191,21 @@ class _MyHomePageState extends State<MyHomePage> {
         return stories;
   }
 
+  Future<String> getUserInfo() async {
+    UserData? userData;
+    await FirebaseFirestore.instance
+        .collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .get()
+        .then((DocumentSnapshot documentSnapshot){
+        userData = UserData.fromDoc(documentSnapshot);
+      });
+    return userData!.name;
+        }
+
   delete(String docId) async {
     await FirebaseFirestore.instance.collection("UsersData")
-        .doc("${userInfo.getInfo().user_id}")
-        .collection("UserStories").doc("${docId}").delete();
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .collection("UserStories").doc(docId).delete();
   }
 }

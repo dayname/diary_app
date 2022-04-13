@@ -25,7 +25,11 @@ class AuthService {
       User? user = result.user;
       user?.updateDisplayName(name).then((value) {
         FirebaseFirestore.instance.collection("UsersData")
-        .doc("${FirebaseAuth.instance.currentUser?.uid}");
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+            .set({
+          "name": _firebaseAuth.currentUser?.displayName,
+          "email": _firebaseAuth.currentUser?.email,
+        });
       });
       return AuthUser.fromFirebase(user);
     }on FirebaseException catch(error){

@@ -21,9 +21,17 @@ class StoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(dataTemp.title),
+        title: Padding(
+          padding: const EdgeInsets.only(top: 6.0),
+          child: Text(dataTemp.title),
+        ),
       ),
-      body: Container(child: Text("${dataTemp.text}", style: TextStyle(color: Colors.grey),)),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text("${dataTemp.text}", style: TextStyle(color: Colors.grey, fontSize: 20),textAlign: TextAlign.justify,),
+        ),
+      ),
     );
   }
 }

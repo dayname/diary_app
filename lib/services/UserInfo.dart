@@ -1,14 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class userInfo{
-  String? name;
-  String? email;
-  String? user_id;
+class UserData {
+  late String name;
+  late String email;
 
-  userInfo.getInfo(){
-    name = FirebaseAuth.instance.currentUser?.displayName;
-    email = FirebaseAuth.instance.currentUser?.email;
-    user_id = FirebaseAuth.instance.currentUser?.uid;
-
+  UserData.fromDoc(DocumentSnapshot doc) {
+    name = doc["name"];
+    email = doc["email"];
   }
 }

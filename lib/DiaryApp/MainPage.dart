@@ -172,8 +172,33 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void choiceAction(String choice) {
     if (choice == Constants.LogOut) {
-      AuthService().logOut();
+      _askedToLogOut();
     }
+  }
+
+  Future<void> _askedToLogOut() async {
+    await showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: const Text('Вы действительно хотите выйти из аккаунта?', textAlign: TextAlign.center,),
+            children: <Widget>[Padding(
+              padding: const EdgeInsets.only(left: 30, right: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(onPressed: () {
+                    Navigator.pop(context);
+                    AuthService().logOut();
+                  }, child: Text("Да", style: TextStyle(fontSize: 20),)),
+                  ElevatedButton(onPressed: () {Navigator.pop(context);}, child: Text("Нет", style: TextStyle(fontSize: 20),)),
+
+                ],),
+            ),
+            ],
+          );
+        }
+    );
   }
 
  Future<List<DataStory>> getStory() async {

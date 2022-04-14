@@ -63,7 +63,6 @@ class _MyAuthState extends State<MyAuth> {
   void checker() async {
     if (await FirebaseAuth.instance.currentUser?.uid != null) {
       isLogged = true;
-      setState(() {});
     }
   }
 

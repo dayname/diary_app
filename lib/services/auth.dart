@@ -15,7 +15,7 @@ class AuthService {
       User? user = result.user;
       return AuthUser.fromFirebase(user);
     } on FirebaseException catch (error) {
-      return null;
+      print("ОШИБКА ПРИ АВТОРИЗАЦИИ");
     }
   }
 
@@ -33,7 +33,7 @@ class AuthService {
       });
       return AuthUser.fromFirebase(user);
     }on FirebaseException catch(error){
-      return null;
+      print("ОШИБКА ПРИ РЕГИСТРАЦИИ");
     }
   }
   Future logOut() async{

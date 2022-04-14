@@ -33,10 +33,11 @@ class _InputNotesState extends State<InputNotes> {
   TextEditingController titleController = TextEditingController();
   @override
 
-
+  bool isDate = false;
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () {_askedToLeavePage();}, ),
           title: const Padding(
             padding: EdgeInsets.only(top: 6),
             child: Text("Введите историю"),
@@ -54,7 +55,7 @@ class _InputNotesState extends State<InputNotes> {
                 decoration: const InputDecoration(
                   iconColor: Colors.yellow,
                   fillColor: Colors.white30,
-                  icon: Icon(Icons.title, color: Colors.grey,),
+                  prefixIcon: Icon(Icons.book, color: Colors.grey,),
                   filled: true,
                   labelText: 'Название',
                   labelStyle: TextStyle(color: Colors.grey),
@@ -62,38 +63,40 @@ class _InputNotesState extends State<InputNotes> {
               ),
               const SizedBox(height: 16,),
               TextField(
-                maxLines: 5,
+                maxLines: 8,
                 style: TextStyle(color: Colors.grey),
                 controller: textController,
                 decoration: const InputDecoration(
                   iconColor: Colors.yellow,
                   fillColor: Colors.white30,
-                  icon: Icon(Icons.book, color: Colors.grey,),
+                  prefixIcon: Icon(Icons.notes, color: Colors.grey,),
                   filled: true,
                   labelText: 'Содержимое',
                   labelStyle: TextStyle(color: Colors.grey),
                 ),
               ),
               const SizedBox(height: 16,),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _showCalendar(context);
-                      },
-                      child: Icon(Icons.date_range, color: Colors.black,),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        addStory(text: textController.text, title: titleController.text);
-                        Navigator.pop(context);
-                      },
-                      child: Text("Сохранить".toUpperCase()),
-                    ),
-                  ]
-                ),
+              Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _showCalendar(context);
+
+                    },
+                    child: isDate ? Text("$formattedDate") : Icon(Icons.date_range, color: Colors.black,),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if((textController.text != "") & (titleController.text != "")){
+                      addStory(text: textController.text, title: titleController.text);
+                      Navigator.pop(context);}
+                      else {
+                        _showMyDialog();
+                      }
+                    },
+                    child: Text("Сохранить".toUpperCase()),
+                  ),
+                ]
               ),
             ],
             )
@@ -108,7 +111,6 @@ class _InputNotesState extends State<InputNotes> {
         .collection("UserStories")
         .doc()
         .set({"title": title, "text": text, "date" : formattedDate});
-
  }
 
   Future _showCalendar(BuildContext context) async{
@@ -125,8 +127,9 @@ class _InputNotesState extends State<InputNotes> {
       return null;
     } else {
       setState(() {
-      final String formatted = DateFormat('dd-MM-yyyy').format(newDate);
+      final String formatted = DateFormat('dd/MM/yyyy').format(newDate);
       formattedDate = formatted;
+      isDate = true;
     });
     }
   }
@@ -136,16 +139,56 @@ class _InputNotesState extends State<InputNotes> {
     return formatted;
   }
 
- // Future<void> getData() async{
- //     await FirebaseFirestore.instance.collection("UserData")
- //        .doc('${FirebaseAuth.instance.currentUser?.uid}')
- //        .get()
- //        .then((DocumentSnapshot doc) {
- //          var map = doc.data() as Map<String, dynamic> ;
- //        datas.add(Data.fromDoc(map));
- //        id = doc.id;
- //    });
- //
- //  }
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ошибка'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Заполните все поля'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Хорошо'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _askedToLeavePage() async {
+    await showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: const Text('Вы действительно хотите выйти? Все несохранненные данные будут удалены.', textAlign: TextAlign.center,),
+            children: <Widget>[Padding(
+              padding: const EdgeInsets.only(left: 30, right: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                ElevatedButton(onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  }, child: Text("Да", style: TextStyle(fontSize: 20),)),
+                ElevatedButton(onPressed: () {Navigator.pop(context);}, child: Text("Нет", style: TextStyle(fontSize: 20),)),
+
+          ],),
+            ),
+            ],
+          );
+        }
+    );
+  }
 
 }

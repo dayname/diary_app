@@ -1,52 +1,70 @@
-import 'package:diary_app/DiaryApp/SignUpPage.dart';
-import 'package:diary_app/domain/authuser.dart';
-import 'package:diary_app/services/auth.dart';
+import 'package:diary_app/DiaryApp/MainPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-class LoginSignupPage extends StatefulWidget {
-  // static getRoute(BuildContext context) {
-  //   return PageRouteBuilder(
-  //       transitionsBuilder: (_, animation, secondAnimation, child) {
-  //         return FadeTransition(opacity: animation,
-  //           child: child,);
-  //       },
-  //       pageBuilder: (_, __, ___) {
-  //         return new LoginSignupPage();
-  //       });
-  // }
+import '../services/auth.dart';
+import 'SignUpPage.dart';
 
-  const LoginSignupPage({Key? key}) : super(key: key);
-
+class LoginPage extends StatefulWidget {
   @override
-  State<LoginSignupPage> createState() => _LoginSignupPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginSignupPageState extends State<LoginSignupPage> {
+class _LoginPageState extends State<LoginPage> {
+
+  Future<FirebaseApp> _initializeFirebase() async {
+    FirebaseApp firebaseApp = await Firebase.initializeApp();
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MyHomePage(
+            user: user,
+          ),
+        ),
+      );
+    }
+
+    return firebaseApp;
+  }
+
   @override
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 4,
-        title: Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                "Diary App".toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 30,
-                ),
+          title: Padding(
+            padding: const EdgeInsets.only(top: 6, left: 110),
+            child: Text("Diary App".toUpperCase(),
+              style: const TextStyle(
+                fontSize: 30,
               ),
-            )),
+            ),
+          )
       ),
-      body: LoginScreen(),
+      body: FutureBuilder(
+        future: _initializeFirebase(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('${snapshot.error}', style: TextStyle(color: Colors.white),));
+          }
+
+          if (snapshot.connectionState == ConnectionState.done) {
+            return loginWidgets();
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
     );
   }
 
-  Column LoginScreen() {
+  loginWidgets(){
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -92,16 +110,26 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if ((passwordController.text != "") & (emailController.text != "")){
-              var result = toLogin(
+                User? user = await FireAuth.signInUsingEmailPassword(
                   email: emailController.text,
                   password: passwordController.text);
+                setState(() {});
+                if (user != null) {
+                  Navigator.of(context)
+                      .pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            MyHomePage(user: user),
+                      ),
+                  );
+                }
               }
-              else {
-                _ifNotFull();
+              else{
+                ifNotFul();
               }
-            },
+              },
             child: Text(
               "ВОЙТИ",
               style: TextStyle(fontSize: 20),
@@ -122,7 +150,9 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
             ),
             InkWell(
                 onTap: () {
-                  Navigator.push(context, SignUpPage.getRoute());
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => SignUpPage()),
+                  );
                 },
                 child: Text(
                   "Регистрируйтесь!",
@@ -134,15 +164,8 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
     );
   }
 
-  toLogin({required String email, required String password}) async {
-    AuthUser? authService = await AuthService().signInWithEmailAndPassword(email, password);
-    if (authService?.id == null){
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Неправильная почта или пароль')));
-    }
-  }
 
-  Future<void> _ifNotFull() async {
+  Future<void> ifNotFul() async {
     return showDialog<void>(
       context: context,
       barrierDismissible: true, // user must tap button!
@@ -168,5 +191,4 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
       },
     );
   }
-
 }

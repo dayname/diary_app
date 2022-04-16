@@ -7,19 +7,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'DataStory.dart';
+import 'LoginPage.dart';
 import 'more_settings.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  final User user;
+
+  MyHomePage({required this.user});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-
+late User _currentUser;
 class _MyHomePageState extends State<MyHomePage> {
   @override
   List<DataStory> storyList = [];
   FirebaseAuth firebase = FirebaseAuth.instance;
+  void initState() {
+    _currentUser = widget.user;
+    super.initState();
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -88,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child:
           Center(
           child: Text(
-            '${name}, напишите свою первую историю',
+            '${_currentUser.displayName}, напишите свою первую историю',
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 25,
@@ -185,9 +192,14 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton(onPressed: () {
+                  ElevatedButton(onPressed: () async {
                     Navigator.pop(context);
-                    AuthService().logOut();
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => LoginPage(),
+                        )
+                    );
                   }, child: Text("Да", style: TextStyle(fontSize: 20),)),
                   ElevatedButton(onPressed: () {Navigator.pop(context);}, child: Text("Нет", style: TextStyle(fontSize: 20),)),
 

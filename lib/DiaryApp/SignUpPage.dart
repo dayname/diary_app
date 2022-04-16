@@ -1,3 +1,5 @@
+import 'package:diary_app/DiaryApp/MainPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../domain/authuser.dart';
 import '../services/auth.dart';
@@ -30,7 +32,7 @@ class _SignUpPageState extends State<SignUpPage> {
         elevation: 4,
         title: Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Text("Регистрация", style: const TextStyle(fontSize: 20,),),
+          child: Center(child: Text("Регистрация", style: const TextStyle(fontSize: 24,),)),
         ),),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -86,14 +88,22 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(onPressed: () {
-              if ((nameController.text != "") & (passwordController.text != "") & (emailController.text != ""))
-              {toRegister(
+            child: ElevatedButton(onPressed: () async {
+              if ((nameController.text != "") & (passwordController.text != "") & (emailController.text != "")) {
+                User? user = await FireAuth
+                    .registerUsingEmailPassword(
+                  name: nameController.text,
                   email: emailController.text,
                   password: passwordController.text,
-                  name: nameController.text);
-              Navigator.pop(context);
-              setState(() {});}
+                );
+
+                setState(() {
+                });
+
+                if (user != null) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MyHomePage(user: user),),);
+                }
+              }
               else {
                 ifNotFul();
               }
@@ -112,16 +122,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  toRegister(
-      {required String email, required String password, required String name}) async {
-    AuthUser? authService = await AuthService().registerWithEmailAndPassword(
-        email, password, name);
-    if (authService?.id == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-          SnackBar(content: Text('Данная почта уже зарегистрирована')));
-    }
-  }
 
   Future<void> ifNotFul() async {
     return showDialog<void>(

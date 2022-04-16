@@ -140,9 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       subtitle: storyList[index].date != null ? Text("${storyList[index].date}",
                           style: TextStyle(color: Colors.grey)) : Text(""),
                       trailing: IconButton(onPressed: (){
-                        setState(() {
-                          delete(storyList[index].docId);
-                        });
+                        _askedToDelete(storyList[index]);
                       }, icon: Icon(
                           Icons.delete_outline,
                           color: Colors.white70,),
@@ -201,6 +199,34 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+
+  Future<void> _askedToDelete(DataStory story) async {
+    await showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: Text('Вы действительно хотите удалить "${story.title}"?', textAlign: TextAlign.center,),
+            children: <Widget>[Padding(
+              padding: const EdgeInsets.only(left: 30, right: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      delete(story.docId);
+                    });
+                  }, child: Text("Да", style: TextStyle(fontSize: 20),)),
+                  ElevatedButton(onPressed: () {Navigator.pop(context);}, child: Text("Нет", style: TextStyle(fontSize: 20),)),
+
+                ],),
+            ),
+            ],
+          );
+        }
+    );
+  }
+
  Future<List<DataStory>> getStory() async {
         List<DataStory> stories = [];
     await FirebaseFirestore.instance
@@ -216,17 +242,6 @@ class _MyHomePageState extends State<MyHomePage> {
         return stories;
   }
 
-  Future<String> getUserInfo() async {
-    UserData? userData;
-    await FirebaseFirestore.instance
-        .collection("UsersData")
-        .doc("${FirebaseAuth.instance.currentUser?.uid}")
-        .get()
-        .then((DocumentSnapshot documentSnapshot){
-        userData = UserData.fromDoc(documentSnapshot);
-      });
-    return userData!.name;
-        }
 
   delete(String docId) async {
     await FirebaseFirestore.instance.collection("UsersData")

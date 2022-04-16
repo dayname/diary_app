@@ -93,9 +93,14 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
             onPressed: () {
-              toLogin(
+              if ((passwordController.text != "") & (emailController.text != "")){
+              var result = toLogin(
                   email: emailController.text,
                   password: passwordController.text);
+              }
+              else {
+                _ifNotFull();
+              }
             },
             child: Text(
               "ВОЙТИ",
@@ -130,6 +135,38 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   }
 
   toLogin({required String email, required String password}) async {
-    await AuthService().signInWithEmailAndPassword(email, password);
+    AuthUser? authService = await AuthService().signInWithEmailAndPassword(email, password);
+    if (authService?.id == null){
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Неправильная почта или пароль')));
+    }
   }
+
+  Future<void> _ifNotFull() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ошибка'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Заполните все поля'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Хорошо'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

@@ -15,7 +15,6 @@ class SignUpPage extends StatefulWidget {
       return new SignUpPage();
     });
   }
-
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
@@ -88,12 +87,16 @@ class _SignUpPageState extends State<SignUpPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(onPressed: () {
-              toRegister(
+              if ((nameController.text != "") & (passwordController.text != "") & (emailController.text != ""))
+              {toRegister(
                   email: emailController.text,
                   password: passwordController.text,
                   name: nameController.text);
               Navigator.pop(context);
-              setState(() {});
+              setState(() {});}
+              else {
+                ifNotFul();
+              }
             },
 
               child: Text("Зарегистрироваться".toUpperCase(),
@@ -110,9 +113,41 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   toRegister(
-      {required String email, required String password, required String name}) async{
-    AuthUser? authService = await AuthService().registerWithEmailAndPassword(email, password, name);
-    setState(() {});
+      {required String email, required String password, required String name}) async {
+    AuthUser? authService = await AuthService().registerWithEmailAndPassword(
+        email, password, name);
+    if (authService?.id == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+          SnackBar(content: Text('Данная почта уже зарегистрирована')));
+    }
+  }
+
+  Future<void> ifNotFul() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ошибка'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Заполните все поля'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Хорошо'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Future <void> sendData()async {

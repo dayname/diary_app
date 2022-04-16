@@ -91,7 +91,7 @@ class _InputNotesState extends State<InputNotes> {
                       addStory(text: textController.text, title: titleController.text);
                       Navigator.pop(context);}
                       else {
-                        _showMyDialog();
+                        _ifNotFull();
                       }
                     },
                     child: Text("Сохранить".toUpperCase()),
@@ -139,10 +139,10 @@ class _InputNotesState extends State<InputNotes> {
     return formatted;
   }
 
-  Future<void> _showMyDialog() async {
+  Future<void> _ifNotFull() async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button!
+      barrierDismissible: true, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Ошибка'),

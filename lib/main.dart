@@ -38,8 +38,8 @@ class MyAuth extends StatefulWidget {
 class _MyAuthState extends State<MyAuth> {
 
   @override
-  void initState() {
-    FirebaseAuth.instance.authStateChanges().listen((user) {
+  void initState() async {
+     await FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() => isLogged = user != null);
     });
     super.initState();

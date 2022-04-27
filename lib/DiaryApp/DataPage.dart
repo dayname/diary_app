@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:diary_app/services/data.dart';
+import 'package:diary_app/utils/UserInfo.dart';
+import 'package:diary_app/utils/data.dart';
+import 'package:diary_app/utils/hints.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-
 class InputNotes extends StatefulWidget {
   static getRoute(BuildContext context) {
-
     return PageRouteBuilder(
         transitionsBuilder: (_, animation, secondAnimation, child) {
           return FadeTransition(opacity: animation,
@@ -25,7 +25,7 @@ class InputNotes extends StatefulWidget {
 }
 
 class _InputNotesState extends State<InputNotes> {
-
+  late List<String> hints;
   var date;
   var newDate;
   String? formattedDate;
@@ -37,10 +37,22 @@ class _InputNotesState extends State<InputNotes> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () {_askedToLeavePage();}, ),
-          title: const Padding(
-            padding: EdgeInsets.only(top: 6),
-            child: Text("Введите историю"),
+
+          leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () {_askedToLeavePage();}, ),
+          title: Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: const Text("Введите историю"),
+              ),
+              IconButton(onPressed: () async{
+                hints = await getHints();
+                chooseHint(hints);
+              }, icon: const Padding(
+                padding: EdgeInsets.only(top: 6, right: 10),
+                child: Icon(Icons.tips_and_updates_outlined),
+              ))
+            ],
           ),
         ),
 
@@ -49,7 +61,7 @@ class _InputNotesState extends State<InputNotes> {
             child: Column(children: [
               const SizedBox(height: 16),
               TextField(
-                style: TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.grey),
                 maxLines: 1,
                 controller: titleController,
                 decoration: const InputDecoration(
@@ -64,7 +76,7 @@ class _InputNotesState extends State<InputNotes> {
               const SizedBox(height: 16,),
               TextField(
                 maxLines: 8,
-                style: TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.grey),
                 controller: textController,
                 decoration: const InputDecoration(
                   iconColor: Colors.yellow,
@@ -83,12 +95,13 @@ class _InputNotesState extends State<InputNotes> {
                       _showCalendar(context);
 
                     },
-                    child: isDate ? Text("$formattedDate") : Icon(Icons.date_range, color: Colors.black,),
+                    child: isDate ? Text("$formattedDate") : const Icon(Icons.date_range, color: Colors.black,),
                   ),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async{
                       if((textController.text != "") & (titleController.text != "")){
-                      addStory(text: textController.text, title: titleController.text);
+                      counterUpdate();
+                      await addStory(text: textController.text, title: titleController.text);
                       Navigator.pop(context);}
                       else {
                         _ifNotFull();
@@ -104,13 +117,31 @@ class _InputNotesState extends State<InputNotes> {
     );
   }
 
+  Future<int?> getUserInfo() async {
+    int? counter;
+    await FirebaseFirestore.instance.collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+        UserData userData = UserData.fromDoc(documentSnapshot);
+        counter = userData.counterOfStory;
+    });
+    return counter;
+  }
+  void counterUpdate()async{
+    await FirebaseFirestore.instance.collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .update({"counterOfStory": FieldValue.increment(1)});
+
+  }
   Future<void> addStory({required String text, required String title})
   async {
+    int? counter = await getUserInfo() as int;
     await FirebaseFirestore.instance.collection("UsersData")
         .doc("${FirebaseAuth.instance.currentUser?.uid}")
         .collection("UserStories")
         .doc()
-        .set({"title": title, "text": text, "date" : formattedDate});
+        .set({"title": title, "text": text, "date" : formattedDate, "counterOfStory" : counter});
  }
 
   Future _showCalendar(BuildContext context) async{
@@ -180,10 +211,10 @@ class _InputNotesState extends State<InputNotes> {
                 ElevatedButton(onPressed: () {
                   Navigator.pop(context);
                   Navigator.pop(context);
-                  }, child: Text("Да", style: TextStyle(fontSize: 20),)),
-                ElevatedButton(onPressed: () {Navigator.pop(context);}, child: Text("Нет", style: TextStyle(fontSize: 20),)),
-
-          ],),
+                  }, child: const Text("Да", style: TextStyle(fontSize: 20),)),
+                ElevatedButton(onPressed: () {Navigator.pop(context);}, child: const Text("Нет", style: const TextStyle(fontSize: 20),)),
+                ],
+              ),
             ),
             ],
           );
@@ -191,4 +222,36 @@ class _InputNotesState extends State<InputNotes> {
     );
   }
 
+  Future<List<String>> getHints() async {
+    List<String> hintsList = [];
+    await FirebaseFirestore.instance.collection("Hints")
+        .doc("v1LsUvNDhstGgmOI68K2")
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+          hintsList = Hints.toList(documentSnapshot) as List<String>;
+        });
+    return hintsList;
+  }
+
+  Future<void> chooseHint(List<String> hints) async {
+    await showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: const Text('Выберите вопрос, на который Вы бы хотели ответить', textAlign: TextAlign.center,),
+            children: <Widget>[
+              ListView.builder(itemCount: 3,
+                  itemBuilder: (BuildContext context, index){
+                return Container(
+                  child: Column(
+                    children: [ListTile(title: Text(hints.elementAt(3)),)],
+                  ),
+                );
+                  }
+              )
+            ],
+          );
+        }
+    );
+  }
 }

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:diary_app/DiaryApp/DataStory.dart';
+import 'package:diary_app/utils/DataStory.dart';
 import 'package:flutter/material.dart';
 
 

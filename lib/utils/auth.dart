@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,7 @@ class FireAuth {
     required String name,
     required String email,
     required String password,
+    required BuildContext context,
   }) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
@@ -19,11 +21,22 @@ class FireAuth {
       user = userCredential.user;
       await user!.updateDisplayName(name);
       await user.reload();
+      FirebaseFirestore.instance.collection("UsersData")
+          .doc("${FirebaseAuth.instance.currentUser?.uid}")
+          .set({
+        "name": auth.currentUser?.displayName,
+        "email": auth.currentUser?.email,
+        "counterOfStory": 0,
+      });
       user = auth.currentUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Пароль должен иметь не менее 6 символов.')));
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Данная почта уже зарегистрирована.')));
         print('The account already exists for that email.');
       }
     } catch (e) {
@@ -36,6 +49,7 @@ class FireAuth {
   static Future<User?> signInUsingEmailPassword({
     required String email,
     required String password,
+    required BuildContext context,
   }) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
@@ -48,8 +62,12 @@ class FireAuth {
       user = userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Данная почта еще не зарегистрирована.')));
         print('No user found for that email.');
       } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Неправильная почта или пароль.')));
         print('Wrong password provided.');
       }
     }
@@ -57,6 +75,10 @@ class FireAuth {
 
   static Future<User?> logOut() async{
     await FirebaseAuth.instance.signOut();
+  }
+  static resetPassword(String email, BuildContext context) async{
+    FirebaseAuth auth = FirebaseAuth.instance;
+    await auth.sendPasswordResetEmail(email: email);
   }
 
 

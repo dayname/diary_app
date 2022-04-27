@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diary_app/DiaryApp/DataPage.dart';
 import 'package:diary_app/DiaryApp/StoryPage.dart';
-import 'package:diary_app/services/UserInfo.dart';
-import 'package:diary_app/services/auth.dart';
+import 'package:diary_app/DiaryApp/editPage.dart';
+import 'package:diary_app/utils/UserInfo.dart';
+import 'package:diary_app/utils/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'DataStory.dart';
+import '../utils/DataStory.dart';
 import 'LoginPage.dart';
-import 'more_settings.dart';
+import '../utils/more_settings.dart';
 
 class MyHomePage extends StatefulWidget {
   final User user;
@@ -67,7 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
       FutureBuilder<List<DataStory>>(
         future: getStory(),
         builder: (context, snapshot) {
-          String? name = firebase.currentUser?.displayName;
           if (snapshot.hasError) {
     return Text('${snapshot.error}', style: TextStyle(color: Colors.white),);
     }
@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
           storyList = snapshot.data!;
           if (storyList.isEmpty)
           {
-             return emptyViewBuild(name!);}
+             return emptyViewBuild();}
           else
             {return listBuilder(storyList);}
 
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  emptyViewBuild(String name){
+  emptyViewBuild(){
     return Container(
       child:
           Center(
@@ -146,11 +146,26 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       subtitle: storyList[index].date != null ? Text("${storyList[index].date}",
                           style: TextStyle(color: Colors.grey)) : Text(""),
-                      trailing: IconButton(onPressed: (){
-                        _askedToDelete(storyList[index]);
-                      }, icon: Icon(
-                          Icons.delete_outline,
-                          color: Colors.white70,),
+                      trailing: Row(mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(onPressed: () async{
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => editStory(storyList[index]),
+                              ),
+                            );
+                            setState(() {});
+                          }, icon: Icon(
+                            Icons.edit,
+                            color: Colors.white70,),
+                          ),
+                          IconButton(onPressed: (){
+                            _askedToDelete(storyList[index]);
+                          }, icon: Icon(
+                              Icons.delete_outline,
+                              color: Colors.white70,),
+                          ),
+                        ],
                       ),
                     ),
                     Container(
@@ -245,6 +260,7 @@ class _MyHomePageState extends State<MyHomePage> {
         .collection("UsersData")
         .doc("${FirebaseAuth.instance.currentUser?.uid}")
         .collection("UserStories")
+        .orderBy("counterOfStory", descending: false)
         .get()
         .then((QuerySnapshot querySnapshot){
           querySnapshot.docs.forEach((QueryDocumentSnapshot doc) {

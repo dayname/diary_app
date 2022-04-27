@@ -1,8 +1,7 @@
 import 'package:diary_app/DiaryApp/MainPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../domain/authuser.dart';
-import '../services/auth.dart';
+import '../utils/auth.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -25,7 +24,8 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
+    TextEditingController passwordFirstController = TextEditingController();
+    TextEditingController passwordSecondController = TextEditingController();
     TextEditingController nameController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
@@ -75,7 +75,7 @@ class _SignUpPageState extends State<SignUpPage> {
               maxLines: 1,
               obscureText: true,
               style: TextStyle(color: Colors.grey),
-              controller: passwordController,
+              controller: passwordFirstController,
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.lock, color: Colors.grey,),
                 iconColor: Colors.yellow,
@@ -87,25 +87,46 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
           Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              maxLines: 1,
+              obscureText: true,
+              style: TextStyle(color: Colors.grey),
+              controller: passwordSecondController,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.lock, color: Colors.grey,),
+                iconColor: Colors.yellow,
+                fillColor: Colors.white30,
+                filled: true,
+                labelText: 'Повторите пароль',
+                labelStyle: TextStyle(color: Colors.grey),
+              ),
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(onPressed: () async {
-              if ((nameController.text != "") & (passwordController.text != "") & (emailController.text != "")) {
+              if (passwordFirstController.text == passwordSecondController.text){
+              if ((nameController.text != "") & (passwordFirstController.text != "") & (emailController.text != "")) {
                 User? user = await FireAuth
                     .registerUsingEmailPassword(
                   name: nameController.text,
                   email: emailController.text,
-                  password: passwordController.text,
+                  password: passwordFirstController.text,
+                  context: context,
                 );
-
                 setState(() {
                 });
-
                 if (user != null) {
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MyHomePage(user: user),),);
                 }
               }
               else {
                 ifNotFul();
+              }
+              }
+              else {
+                ifNotMatch();
               }
             },
 
@@ -123,10 +144,11 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
 
+
   Future<void> ifNotFul() async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: true, // user must tap button!
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Ошибка'),
@@ -134,6 +156,33 @@ class _SignUpPageState extends State<SignUpPage> {
             child: ListBody(
               children: const <Widget>[
                 Text('Заполните все поля'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Хорошо'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> ifNotMatch() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ошибка'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Пароли не совпадают'),
               ],
             ),
           ),

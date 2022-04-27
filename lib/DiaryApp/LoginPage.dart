@@ -2,9 +2,9 @@ import 'package:diary_app/DiaryApp/MainPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-import '../services/auth.dart';
+import '../utils/auth.dart';
 import 'SignUpPage.dart';
+import 'forgotPasswordPage.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,10 +12,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   Future<FirebaseApp> _initializeFirebase() async {
-    FirebaseApp firebaseApp = await Firebase.initializeApp();
-
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
@@ -27,8 +26,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }
-
-    return firebaseApp;
+    return Firebase.initializeApp();
   }
 
   @override
@@ -52,7 +50,6 @@ class _LoginPageState extends State<LoginPage> {
           if (snapshot.hasError) {
             return Center(child: Text('${snapshot.error}', style: TextStyle(color: Colors.white),));
           }
-
           if (snapshot.connectionState == ConnectionState.done) {
             return loginWidgets();
           }
@@ -107,63 +104,64 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
+        SizedBox(height: 7),
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
+          padding: const EdgeInsets.only(left: 16, right: 16),
+          child: Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+            ElevatedButton(
             onPressed: () async {
               if ((passwordController.text != "") & (emailController.text != "")){
                 User? user = await FireAuth.signInUsingEmailPassword(
-                  email: emailController.text,
-                  password: passwordController.text);
+                    email: emailController.text,
+                    password: passwordController.text, context: context);
                 setState(() {});
                 if (user != null) {
                   Navigator.of(context)
                       .pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            MyHomePage(user: user),
-                      ),
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          MyHomePage(user: user),
+                    ),
                   );
                 }
               }
               else{
                 ifNotFul();
               }
-              },
+            },
             child: Text(
               "ВОЙТИ",
               style: TextStyle(fontSize: 20),
             ),
-            style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 130, vertical: 15)),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Еще не зарегистрированы?",
-              style: TextStyle(color: Colors.grey, fontSize: 15),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 52, vertical: 13),
+              ),
+          ), ElevatedButton(
+            onPressed: () async {
+                 Navigator.of(context).pushReplacement(
+                 MaterialPageRoute(builder: (context) => SignUpPage()),
+                 );
+              },
+            child: Text(
+              "Регистрация".toUpperCase(),
+              style: TextStyle(fontSize: 20),
             ),
-            SizedBox(
-              width: 8,
-            ),
-            InkWell(
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => SignUpPage()),
-                  );
-                },
-                child: Text(
-                  "Регистрируйтесь!",
-                  style: TextStyle(color: Colors.yellow, fontSize: 15),
-                )),
-          ],
+                style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 23,vertical: 13),
+              ),
+          ),],),
         ),
+
+        SizedBox(height: 16),
+        Center(child: InkWell(onTap: (){
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => forgotPasswordPage()),
+          );
+        },child: Text("Забыли пароль?", style: TextStyle(fontSize: 20, color: Colors.grey)))),
       ],
     );
   }
-
 
   Future<void> ifNotFul() async {
     return showDialog<void>(

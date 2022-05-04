@@ -27,6 +27,7 @@ class FireAuth {
         "name": auth.currentUser?.displayName,
         "email": auth.currentUser?.email,
         "counterOfStory": 0,
+        "hints": ["ААААААААААААААААААААААААА", "ббббббббббббббббббббб", "сссссссссссссссссссссссссс", "ddddddddddddddddddd", "eeeeeeeeeeeeeeeeeee", "fffffffffffffffffffffff", "ggggggggggggggggggggg", "выыыыыыывывывывывыыыввыы", "trrtertwetjwlrjlwejtlwre"]
       });
       user = auth.currentUser;
     } on FirebaseAuthException catch (e) {

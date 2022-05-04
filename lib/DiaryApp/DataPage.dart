@@ -4,8 +4,10 @@ import 'package:diary_app/utils/UserInfo.dart';
 import 'package:diary_app/utils/data.dart';
 import 'package:diary_app/utils/hints.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 
 class InputNotes extends StatefulWidget {
@@ -25,19 +27,28 @@ class InputNotes extends StatefulWidget {
 }
 
 class _InputNotesState extends State<InputNotes> {
-  late List<String> hints;
+  late UserData userData;
+  late String hint1;
+  late String hint2;
+  late String hint3;
+
+  Map<int, dynamic> toDelete = {};
+
+  bool isChoose1 = false;
+  bool isChoose2 = false;
+  bool isChoose3 = false;
+
   var date;
   var newDate;
   String? formattedDate;
-  TextEditingController textController = TextEditingController();
-  TextEditingController titleController = TextEditingController();
   @override
 
   bool isDate = false;
   Widget build(BuildContext context) {
+    TextEditingController textController = isChoose1 ? TextEditingController(text: hint1) : isChoose2 ? TextEditingController(text: hint2) : isChoose3 ? TextEditingController(text: hint3) : TextEditingController();
+    TextEditingController titleController = TextEditingController();
     return Scaffold(
         appBar: AppBar(
-
           leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () {_askedToLeavePage();}, ),
           title: Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -46,8 +57,13 @@ class _InputNotesState extends State<InputNotes> {
                 child: const Text("Введите историю"),
               ),
               IconButton(onPressed: () async{
-                hints = await getHints();
-                chooseHint(hints);
+                await getUserInfo();
+                List<String> hints = userData.hints;
+                if (hints.isNotEmpty)
+                await chooseHint3(hints);
+                else
+                  ifEmpty();
+                setState(() {});
               }, icon: const Padding(
                 padding: EdgeInsets.only(top: 6, right: 10),
                 child: Icon(Icons.tips_and_updates_outlined),
@@ -93,19 +109,28 @@ class _InputNotesState extends State<InputNotes> {
                   ElevatedButton(
                     onPressed: () {
                       _showCalendar(context);
-
                     },
                     child: isDate ? Text("$formattedDate") : const Icon(Icons.date_range, color: Colors.black,),
                   ),
                   ElevatedButton(
                     onPressed: () async{
-                      if((textController.text != "") & (titleController.text != "")){
-                      counterUpdate();
-                      await addStory(text: textController.text, title: titleController.text);
-                      Navigator.pop(context);}
-                      else {
-                        _ifNotFull();
-                      }
+                       if((textController.text != "") & (titleController.text != "")){
+                       counterUpdate();
+                       await addStory(text: textController.text, title: titleController.text);
+                       if (toDelete != null){
+                         List<String> hints = toDelete[1];
+                         List<int> idList = toDelete[2];
+                         if (isChoose1 == true){hints.removeAt(idList.elementAt(0));
+                         updateHints(hints);}
+                         else if (isChoose2 == true){hints.removeAt(idList.elementAt(1));
+                         updateHints(hints);}
+                         else if (isChoose3 == true){hints.removeAt(idList.elementAt(2));
+                         updateHints(hints);}
+                       }
+                       Navigator.pop(context);}
+                       else {
+                         _ifNotFull();
+                       }
                     },
                     child: Text("Сохранить".toUpperCase()),
                   ),
@@ -117,16 +142,13 @@ class _InputNotesState extends State<InputNotes> {
     );
   }
 
-  Future<int?> getUserInfo() async {
-    int? counter;
+  Future<void> getUserInfo() async {
     await FirebaseFirestore.instance.collection("UsersData")
         .doc("${FirebaseAuth.instance.currentUser?.uid}")
         .get()
         .then((DocumentSnapshot documentSnapshot) {
-        UserData userData = UserData.fromDoc(documentSnapshot);
-        counter = userData.counterOfStory;
+        userData = UserData.fromDoc(documentSnapshot);
     });
-    return counter;
   }
   void counterUpdate()async{
     await FirebaseFirestore.instance.collection("UsersData")
@@ -136,7 +158,8 @@ class _InputNotesState extends State<InputNotes> {
   }
   Future<void> addStory({required String text, required String title})
   async {
-    int? counter = await getUserInfo() as int;
+    await getUserInfo();
+    int counter = userData.counterOfStory;
     await FirebaseFirestore.instance.collection("UsersData")
         .doc("${FirebaseAuth.instance.currentUser?.uid}")
         .collection("UserStories")
@@ -211,7 +234,7 @@ class _InputNotesState extends State<InputNotes> {
                 ElevatedButton(onPressed: () {
                   Navigator.pop(context);
                   Navigator.pop(context);
-                  }, child: const Text("Да", style: TextStyle(fontSize: 20),)),
+                  }, child: const Text("Да", style: TextStyle(fontSize: 20))),
                 ElevatedButton(onPressed: () {Navigator.pop(context);}, child: const Text("Нет", style: const TextStyle(fontSize: 20),)),
                 ],
               ),
@@ -222,36 +245,207 @@ class _InputNotesState extends State<InputNotes> {
     );
   }
 
-  Future<List<String>> getHints() async {
-    List<String> hintsList = [];
-    await FirebaseFirestore.instance.collection("Hints")
-        .doc("v1LsUvNDhstGgmOI68K2")
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-          hintsList = Hints.toList(documentSnapshot) as List<String>;
-        });
-    return hintsList;
-  }
 
-  Future<void> chooseHint(List<String> hints) async {
+
+  Future<void> chooseHint3(List<String> hints) async {
+
+    bool isHigh1 = false;
+    bool isHigh2 = false;
+    bool isHigh3 = false;
+
+
+    List<int> idList = [];
+    late int i;
+    hints.length > 2 ? i = 3 : hints.length > 1 ? i = 2 : hints.length > 0 ? i = 1 : null;
+    while (i > 0) {
+      int n = Random().nextInt(hints.length);
+      if (!idList.contains(n)){
+            idList.add(n);
+            i--;
+      }
+    }
     await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
-          return SimpleDialog(
-            title: const Text('Выберите вопрос, на который Вы бы хотели ответить', textAlign: TextAlign.center,),
-            children: <Widget>[
-              ListView.builder(itemCount: 3,
-                  itemBuilder: (BuildContext context, index){
-                return Container(
-                  child: Column(
-                    children: [ListTile(title: Text(hints.elementAt(3)),)],
-                  ),
-                );
-                  }
-              )
-            ],
-          );
+          return StatefulBuilder(builder: (context, setState) {
+            return SimpleDialog(
+              title: const Text('Выберите вопрос, на который Вы бы хотели ответить', textAlign: TextAlign.center,),
+              children: <Widget>[
+                Container(
+                  child: hints.length > 2 ? Column(
+                    children: [
+                      ElevatedButton(onPressed: (){
+                        isHigh1 = true; isHigh2 = false; isHigh3 = false;
+                        setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                      ): ElevatedButton.styleFrom(
+                        primary: Colors.yellow,
+                      ) ),
+
+                      ElevatedButton(onPressed: (){
+                        isHigh1 = false; isHigh2 = true; isHigh3 = false;
+                        setState(() {});}, child: Text(hints.elementAt(idList.elementAt(1)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh2 ? ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                      ):ElevatedButton.styleFrom(
+                        primary: Colors.yellow,
+                      )),
+
+                      ElevatedButton(onPressed: (){
+                        isHigh1 = false; isHigh2 = false; isHigh3 = true;
+                        setState(() {});}, child: Text(hints.elementAt(idList.elementAt(2)), textAlign: TextAlign.center,  style: TextStyle(fontSize: 16),), style: isHigh3 ? ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                      ): ElevatedButton.styleFrom(
+                        primary: Colors.yellow,
+                      ) ),
+
+                      ElevatedButton(onPressed: (){
+                        toDelete = {
+                          1: hints,
+                          2: idList,
+                        };
+                        if (isHigh1 == true){
+                          isChoose1 = true;isChoose2 = false;isChoose3 = false;
+                          hint1 = hints[idList[0]];
+                          // hints.removeAt(idList.elementAt(0));
+                          // updateHints(hints);
+                          Navigator.pop(context);
+                        }
+                        else if (isHigh2 == true){
+                          isChoose1 = false;isChoose2 = true;isChoose3 = false;
+                          hint2 = hints[idList[1]];
+                          // hints.removeAt(idList.elementAt(1));
+                          // updateHints(hints);
+                          Navigator.pop(context);
+                        }
+                        else if (isHigh3 == true){
+                          isChoose1 = false;isChoose2 = false;isChoose3 = true;
+                          hint3 = hints[idList[2]];
+                          // hints.removeAt(idList.elementAt(2));
+                          // updateHints(hints);
+                          Navigator.pop(context);
+                        }
+                        else {
+                          Navigator.pop(context);
+                        }
+                      }, child: Text('OK'))
+                    ],
+                  ): hints.length > 1 ? Column(
+                    children: [
+                    ElevatedButton(onPressed: (){
+            isHigh1 = true; isHigh2 = false; isHigh3 = false;
+            setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
+            primary: Colors.green,
+            ): ElevatedButton.styleFrom(
+            primary: Colors.yellow,
+            ) ),
+
+            ElevatedButton(onPressed: (){
+            isHigh1 = false; isHigh2 = true; isHigh3 = false;
+            setState(() {});}, child: Text(hints.elementAt(idList.elementAt(1)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh2 ? ElevatedButton.styleFrom(
+            primary: Colors.green,
+            ):ElevatedButton.styleFrom(
+            primary: Colors.yellow,
+            )),
+                      ElevatedButton(onPressed: (){
+                        toDelete = {
+                          1: hints,
+                          2: idList,
+                        };
+                        if (isHigh1 == true){
+                          isChoose1 = true;isChoose2 = false;isChoose3 = false;
+                          hint1 = hints[idList[0]];
+                          // hints.removeAt(idList.elementAt(0));
+                          // updateHints(hints);
+                          Navigator.pop(context);
+                        }
+                        else if (isHigh2 == true){
+                          isChoose1 = false;isChoose2 = true;isChoose3 = false;
+                          hint2 = hints[idList[1]];
+                          // hints.removeAt(idList.elementAt(1));
+                          // updateHints(hints);
+                          Navigator.pop(context);
+                        }
+                        else {
+                          Navigator.pop(context);
+                        }
+                      }, child: Text('OK'))]): hints.length > 0 ? Column(
+                      children: [
+                        ElevatedButton(onPressed: (){
+                          isHigh1 = true; isHigh2 = false; isHigh3 = false;
+                          setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                        ): ElevatedButton.styleFrom(
+                          primary: Colors.yellow,
+                        ) ),
+                        ElevatedButton(onPressed: (){
+                          toDelete = {
+                            1: hints,
+                            2: idList,
+                          };
+                          if (isHigh1 == true){
+                            isChoose1 = true;isChoose2 = false;isChoose3 = false;
+                            hint1 = hints[idList[0]];
+                            // hints.removeAt(idList.elementAt(0));
+                            // updateHints(hints);
+                            Navigator.pop(context);
+                          }
+                          else {
+                            Navigator.pop(context);
+                          }
+                        }, child: Text('OK'))
+                      ]) : Center(child: Text("Вы использовали все подсказки. Ждите пополнений")),
+                ),
+              ],
+            );
+          });
         }
+    );
+  }
+
+
+  Future<void> updateHints(List<String> hints) async{
+    await FirebaseFirestore.instance.collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .update({
+      "hints" : hints,
+    });
+  }
+
+  Future<void> update13423() async{
+    List<String> list = ["${FirebaseAuth.instance.currentUser?.uid}"];
+    list.forEach((element) async{
+      await FirebaseFirestore.instance.collection("UsersData")
+          .doc("${element}")
+          .update({
+        "hints" : ["Чтобы вы в себе изменили, если могли бы?", "Как выглядит ваша идеальная жизнь?", "Каким вы себя видите через 5, 10, 20 лет?", "Что бы вы рассказали о себе незнакомцу?", "Назовите ваши пять главнейших жизненных принципов.", "Что никто не знает о вас? Почему вы храните это в секрете?"],
+      });
+    });
+  }
+
+  Future<void> ifEmpty() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ошибка'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Вы использовали все вопросы'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Хорошо'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

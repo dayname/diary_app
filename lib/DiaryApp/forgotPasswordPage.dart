@@ -9,14 +9,15 @@ class forgotPasswordPage extends StatefulWidget {
 
 class _forgotPasswordPageState extends State<forgotPasswordPage> {
   @override
+  bool isClicked = false;
   TextEditingController emailController = TextEditingController();
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Text("Восстановление пароля"),
+      appBar: AppBar(title: const Padding(
+        padding: EdgeInsets.only(top: 4),
+        child: Text("Смена пароля"),
       ),),
-      body: forgotPasswordView(),
+      body: isClicked ? clicked() :forgotPasswordView(),
     );
   }
   forgotPasswordView(){
@@ -25,7 +26,7 @@ class _forgotPasswordPageState extends State<forgotPasswordPage> {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
-            style: TextStyle(color: Colors.grey),
+            style: const TextStyle(color: Colors.grey),
             maxLines: 1,
             controller: emailController,
             decoration: const InputDecoration(
@@ -43,10 +44,19 @@ class _forgotPasswordPageState extends State<forgotPasswordPage> {
         ),
         ElevatedButton(onPressed: () async{
           FireAuth.resetPassword(emailController.text, context);
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text("Ссылка для восстановления пароля отправлена на почту")));
-        }, child: Text("Сбросить пароль", style: TextStyle(fontSize: 20),))
+          isClicked = true;
+          setState(() {
+
+          });
+        }, child: const Text("Сбросить пароль", style: TextStyle(fontSize: 20),))
       ],
+    );
+  }
+  clicked(){
+    return Center(
+        child: Text(
+          "Ссылка для смены пароля отправлена на ${FirebaseAuth.instance
+              .currentUser?.email}", style: TextStyle(fontSize: 23, color: Colors.yellow.withOpacity(0.5)), textAlign: TextAlign.center,)
     );
   }
 }

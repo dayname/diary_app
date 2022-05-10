@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diary_app/DiaryApp/DataPage.dart';
 import 'package:diary_app/DiaryApp/StoryPage.dart';
+import 'package:diary_app/DiaryApp/confirmEmail.dart';
 import 'package:diary_app/DiaryApp/editPage.dart';
+import 'package:diary_app/DiaryApp/profilePage.dart';
 import 'package:diary_app/utils/UserInfo.dart';
 import 'package:diary_app/utils/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,13 +21,13 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-late User _currentUser;
+late User currentUser;
 class _MyHomePageState extends State<MyHomePage> {
   @override
   List<DataStory> storyList = [];
   FirebaseAuth firebase = FirebaseAuth.instance;
   void initState() {
-    _currentUser = widget.user;
+    currentUser = widget.user;
     super.initState();
   }
   Widget build(BuildContext context) {
@@ -95,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child:
           Center(
           child: Text(
-            '${_currentUser.displayName}, напишите свою первую историю',
+            '${currentUser.displayName}, напишите свою первую историю',
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 25,
@@ -105,7 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
        )
     );
   }
-  
 
   listBuilder(List<DataStory> storyList) {
     return RefreshIndicator(
@@ -194,6 +195,12 @@ class _MyHomePageState extends State<MyHomePage> {
     if (choice == Constants.LogOut) {
       _askedToLogOut();
     }
+    if (choice == Constants.Settings){
+      Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => profilePage(),
+          ));
+    }
   }
 
   Future<void> _askedToLogOut() async {
@@ -217,8 +224,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   }, child: Text("Да", style: TextStyle(fontSize: 20),)),
                   ElevatedButton(onPressed: () {Navigator.pop(context);}, child: Text("Нет", style: TextStyle(fontSize: 20),)),
-
-                ],),
+                ],
+              ),
             ),
             ],
           );

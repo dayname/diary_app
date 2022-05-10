@@ -114,8 +114,8 @@ class _InputNotesState extends State<InputNotes> {
                   ),
                   ElevatedButton(
                     onPressed: () async{
-                       if((textController.text != "") & (titleController.text != "")){
-                       counterUpdate();
+                       if((textController.text != "") & (titleController.text != ""))
+                       {counterUpdate();
                        await addStory(text: textController.text, title: titleController.text);
                        if (toDelete != null){
                          List<String> hints = toDelete[1];
@@ -125,8 +125,7 @@ class _InputNotesState extends State<InputNotes> {
                          else if (isChoose2 == true){hints.removeAt(idList.elementAt(1));
                          updateHints(hints);}
                          else if (isChoose3 == true){hints.removeAt(idList.elementAt(2));
-                         updateHints(hints);}
-                       }
+                         updateHints(hints);}}
                        Navigator.pop(context);}
                        else {
                          _ifNotFull();
@@ -274,29 +273,38 @@ class _InputNotesState extends State<InputNotes> {
                 Container(
                   child: hints.length > 2 ? Column(
                     children: [
-                      ElevatedButton(onPressed: (){
-                        isHigh1 = true; isHigh2 = false; isHigh3 = false;
-                        setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
-                        primary: Colors.green,
-                      ): ElevatedButton.styleFrom(
-                        primary: Colors.yellow,
-                      ) ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(onPressed: (){
+                          isHigh1 = true; isHigh2 = false; isHigh3 = false;
+                          setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                        ): ElevatedButton.styleFrom(
+                          primary: Colors.yellow,
+                        ) ),
+                      ),
 
-                      ElevatedButton(onPressed: (){
-                        isHigh1 = false; isHigh2 = true; isHigh3 = false;
-                        setState(() {});}, child: Text(hints.elementAt(idList.elementAt(1)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh2 ? ElevatedButton.styleFrom(
-                        primary: Colors.green,
-                      ):ElevatedButton.styleFrom(
-                        primary: Colors.yellow,
-                      )),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(onPressed: (){
+                          isHigh1 = false; isHigh2 = true; isHigh3 = false;
+                          setState(() {});}, child: Text(hints.elementAt(idList.elementAt(1)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh2 ? ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                        ):ElevatedButton.styleFrom(
+                          primary: Colors.yellow,
+                        )),
+                      ),
 
-                      ElevatedButton(onPressed: (){
-                        isHigh1 = false; isHigh2 = false; isHigh3 = true;
-                        setState(() {});}, child: Text(hints.elementAt(idList.elementAt(2)), textAlign: TextAlign.center,  style: TextStyle(fontSize: 16),), style: isHigh3 ? ElevatedButton.styleFrom(
-                        primary: Colors.green,
-                      ): ElevatedButton.styleFrom(
-                        primary: Colors.yellow,
-                      ) ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(onPressed: (){
+                          isHigh1 = false; isHigh2 = false; isHigh3 = true;
+                          setState(() {});}, child: Text(hints.elementAt(idList.elementAt(2)), textAlign: TextAlign.center,  style: TextStyle(fontSize: 16),), style: isHigh3 ? ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                        ): ElevatedButton.styleFrom(
+                          primary: Colors.yellow,
+                        ) ),
+                      ),
 
                       ElevatedButton(onPressed: (){
                         toDelete = {
@@ -327,25 +335,31 @@ class _InputNotesState extends State<InputNotes> {
                         else {
                           Navigator.pop(context);
                         }
-                      }, child: Text('OK'))
+                      }, child: Text('Потвердить'))
                     ],
                   ): hints.length > 1 ? Column(
                     children: [
-                    ElevatedButton(onPressed: (){
-            isHigh1 = true; isHigh2 = false; isHigh3 = false;
-            setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
-            primary: Colors.green,
-            ): ElevatedButton.styleFrom(
-            primary: Colors.yellow,
-            ) ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(onPressed: (){
+                          isHigh1 = true; isHigh2 = false; isHigh3 = false;
+                          setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          ): ElevatedButton.styleFrom(
+                          primary: Colors.yellow,
+                          ) ),
+                    ),
 
-            ElevatedButton(onPressed: (){
-            isHigh1 = false; isHigh2 = true; isHigh3 = false;
-            setState(() {});}, child: Text(hints.elementAt(idList.elementAt(1)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh2 ? ElevatedButton.styleFrom(
-            primary: Colors.green,
-            ):ElevatedButton.styleFrom(
-            primary: Colors.yellow,
-            )),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(onPressed: (){
+                          isHigh1 = false; isHigh2 = true; isHigh3 = false;
+                          setState(() {});}, child: Text(hints.elementAt(idList.elementAt(1)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh2 ? ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          ):ElevatedButton.styleFrom(
+                          primary: Colors.yellow,
+                          )),
+                        ),
                       ElevatedButton(onPressed: (){
                         toDelete = {
                           1: hints,
@@ -368,15 +382,18 @@ class _InputNotesState extends State<InputNotes> {
                         else {
                           Navigator.pop(context);
                         }
-                      }, child: Text('OK'))]): hints.length > 0 ? Column(
+                      }, child: Text('Потвердить'))]): hints.length > 0 ? Column(
                       children: [
-                        ElevatedButton(onPressed: (){
-                          isHigh1 = true; isHigh2 = false; isHigh3 = false;
-                          setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
-                          primary: Colors.green,
-                        ): ElevatedButton.styleFrom(
-                          primary: Colors.yellow,
-                        ) ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(onPressed: (){
+                            isHigh1 = true; isHigh2 = false; isHigh3 = false;
+                            setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
+                            primary: Colors.green,
+                          ): ElevatedButton.styleFrom(
+                            primary: Colors.yellow,
+                          ) ),
+                        ),
                         ElevatedButton(onPressed: (){
                           toDelete = {
                             1: hints,
@@ -392,7 +409,7 @@ class _InputNotesState extends State<InputNotes> {
                           else {
                             Navigator.pop(context);
                           }
-                        }, child: Text('OK'))
+                        }, child: Text('Потвердить'))
                       ]) : Center(child: Text("Вы использовали все подсказки. Ждите пополнений")),
                 ),
               ],

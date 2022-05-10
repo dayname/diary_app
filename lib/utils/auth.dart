@@ -68,7 +68,7 @@ class FireAuth {
         print('No user found for that email.');
       } else if (e.code == 'wrong-password') {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Неправильная почта или пароль.')));
+            .showSnackBar(SnackBar(content: Text('Неправильный пароль.')));
         print('Wrong password provided.');
       }
     }
@@ -82,7 +82,32 @@ class FireAuth {
     await auth.sendPasswordResetEmail(email: email);
   }
 
+  static Future<User?> reAuthUser({
+    required String email,
+    required String password,
+    required BuildContext context,
+  }) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user;
 
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      user = userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Данная почта еще не зарегистрирована.')));
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Неправильный пароль.')));
+        print('Wrong password provided.');
+      }
+    }
+  }
   static Future<User?> refreshUser(User user) async {
     FirebaseAuth auth = FirebaseAuth.instance;
 

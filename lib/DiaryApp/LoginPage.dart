@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../utils/auth.dart';
+import '../utils/notifications.dart';
 import 'SignUpPage.dart';
 import 'forgotPasswordPage.dart';
 
@@ -12,6 +13,18 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  void initState() {
+    super.initState();
+    NotificationApi.init();
+
+
+  }
+void listenNotifications() => NotificationApi.onNotifications.stream.listen(onClickedNotification);
+  void onClickedNotification(String? payload) =>
+  Navigator.of(context).push(MaterialPageRoute(
+    builder: (context) => LoginPage(),
+  ));
+
   Future<FirebaseApp> _initializeFirebase() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();

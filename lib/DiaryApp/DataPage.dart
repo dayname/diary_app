@@ -117,7 +117,7 @@ class _InputNotesState extends State<InputNotes> {
                        if((textController.text != "") & (titleController.text != ""))
                        {counterUpdate();
                        await addStory(text: textController.text, title: titleController.text);
-                       if (toDelete != null){
+                       if (toDelete.isNotEmpty){
                          List<String> hints = toDelete[1];
                          List<int> idList = toDelete[2];
                          if (isChoose1 == true){hints.removeAt(idList.elementAt(0));

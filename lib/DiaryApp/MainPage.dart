@@ -191,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-  void choiceAction(String choice) {
+  void choiceAction(String choice) async{
     if (choice == Constants.LogOut) {
       _askedToLogOut();
     }
@@ -276,7 +276,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
         return stories;
   }
-
 
   delete(String docId) async {
     await FirebaseFirestore.instance.collection("UsersData")

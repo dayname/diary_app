@@ -1,11 +1,15 @@
-import 'package:diary_app/DiaryApp/MainPage.dart';
-import 'package:diary_app/DiaryApp/confirmEmail.dart';
-import 'package:diary_app/DiaryApp/forgotPasswordPage.dart';
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:diary_app/utils/UserInfo.dart';
 import 'package:diary_app/utils/auth.dart';
+import 'package:diary_app/utils/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:path_provider/path_provider.dart';
 import 'LoginPage.dart';
+
+
 class profilePage extends StatefulWidget {
   const profilePage({Key? key}) : super(key: key);
 
@@ -15,6 +19,16 @@ class profilePage extends StatefulWidget {
 
 class _profilePageState extends State<profilePage> {
   @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   setState(() {
+  //     getUserInfo().whenComplete(() => null);
+  //   });
+  // }
+  var hour;
+  var minute;
+  UserData? userData;
   bool isSended = false;
   bool? isConfirmed = FirebaseAuth.instance.currentUser?.emailVerified;
   Widget build(BuildContext context) {
@@ -72,6 +86,16 @@ class _profilePageState extends State<profilePage> {
             leading: Icon(Icons.lock, color: Colors.grey,),
             title: Text("Нажмите для смены пароля", style: TextStyle(color: Colors.grey),),
           ),
+          Divider(color: Colors.grey,),
+          Center(child: Text("Напоминатель", style: TextStyle(color: Colors.grey),)),
+          ListTile(
+            onTap: () async{
+
+            },
+            title: Text("Time, каждый день", style: TextStyle(color: Colors.grey)),
+            leading: Icon(Icons.schedule, color: Colors.grey,),
+            subtitle: Text("Нажмите чтобы настроить напоминатель", style: TextStyle(color: Colors.grey)),
+          )
         ],
       ),
     );
@@ -86,8 +110,7 @@ class _profilePageState extends State<profilePage> {
             ListTile(
               onTap:() async {
                 await updateNameDialog();
-                setState(() {
-                });
+                setState(() {});
             },
               leading: Icon(Icons.person, color: Colors.grey),
               title: Text("${FirebaseAuth.instance.currentUser?.displayName}", style: TextStyle(color: Colors.grey),),
@@ -109,20 +132,78 @@ class _profilePageState extends State<profilePage> {
                 setState((){});
               },
 
+
             //   onTap: () {
             //   Navigator.of(context).push(
             //       MaterialPageRoute(builder: (context) => forgotPasswordPage())
             //   );
             // },
+
+
               leading: Icon(Icons.lock, color: Colors.grey,),
               title: Text("Нажмите для смены пароля", style: TextStyle(color: Colors.grey),),
             ),
             Divider(color: Colors.grey,),
+            Center(child: Text("Напоминатель", style: TextStyle(color: Colors.grey),)),
             ListTile(
-              leading: Icon(Icons.schedule, color: Colors.grey),
-              title: Text("Напоминатель", style: TextStyle(color: Colors.grey)),
-            )
+              onTap: () async{
+                var Time;
+                await showTimePicker(context: context,
+                  initialTime: TimeOfDay.now(),
+                  helpText: "Выберите время",
+                ).then((selectedTime) async {
+                  var tempHour = selectedTime!.hour;
+                  var tempMinute = selectedTime.minute;
 
+                  print("Before: $tempHour:$tempMinute");
+                  if (tempMinute < 10 && tempHour < 10) {
+                    hour = "0${tempHour}";
+                    minute = "0${tempMinute}";
+                  }
+                   else if (tempMinute < 10){
+                    hour = tempHour;
+                    minute = "0${tempMinute}";
+
+                    // else {
+                    //   hour = tempHour;
+                    //   minute = "00${tempMinute}";
+                    // }
+                } else if (tempHour < 10){
+                    hour = "0${tempHour}";
+                    minute = tempMinute;
+                  } else {
+                    hour = tempHour;
+                    minute = tempMinute;
+                  }
+                  print("After: $hour:$minute");
+                  var year = DateTime.now().year;
+                  var month = DateTime.now().month;
+                  var day = DateTime.now().day;
+                  print(DateTime.now());
+                  if (month < 10) {
+                    Time = DateTime.parse("$year-0$month-$day $hour:$minute:00.000000");
+                  } else if (day < 10) {
+                    Time = DateTime.parse("$year-$month-0$day $hour:$minute:00.000000");
+                  } else if (day < 10 && month < 10) {
+                    Time = DateTime.parse("$year-0$month-0$day $hour:$minute:00.000000");
+                  }
+
+                  //2022-05-11 21:15:40.622207
+                  timeUpdate(hour, minute);
+                  print(Time);
+                  NotificationApi.showNotificationDaily(
+                    title: "👋Привет, ${FirebaseAuth.instance.currentUser?.displayName}!",
+                    body: "Самое время вести дневник",
+                    schedule: Time,
+                    payload: 'diaryapp',
+                  );
+                }
+                );
+              setState(() {});
+              },
+              title: hour == null ? Text("Настройте напоминатель", style: TextStyle(color: Colors.grey)) : Text("Время показа уведомления - ${hour}:${minute}", style: TextStyle(color: Colors.grey)),
+              leading: Icon(Icons.schedule, color: Colors.grey,),
+            )
           ],
         ),
       );
@@ -348,5 +429,21 @@ class _profilePageState extends State<profilePage> {
       ],);
     });
   }
+  Future<void> getUserInfo() async {
+    await FirebaseFirestore.instance.collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      userData = UserData.fromDoc(documentSnapshot);
+    });
+  }
+
+  void timeUpdate(dynamic hour, dynamic minute)async{
+    await FirebaseFirestore.instance.collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .update({"hour": hour, "minute": minute});
+
+  }
+
   }
 

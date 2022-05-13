@@ -18,7 +18,7 @@ class InputNotes extends StatefulWidget {
             child: child,);
         },
         pageBuilder: (_, __, ___) {
-          return new InputNotes();
+          return InputNotes();
         });
   }
 
@@ -26,27 +26,32 @@ class InputNotes extends StatefulWidget {
   State<InputNotes> createState() => _InputNotesState();
 }
 
+late String hint1;
+late String hint2;
+late String hint3;
+
+
+
+bool isChoose1 = false;
+bool isChoose2 = false;
+bool isChoose3 = false;
 class _InputNotesState extends State<InputNotes> {
+
+
   late UserData userData;
-  late String hint1;
-  late String hint2;
-  late String hint3;
 
   Map<int, dynamic> toDelete = {};
-
-  bool isChoose1 = false;
-  bool isChoose2 = false;
-  bool isChoose3 = false;
-
   var date;
   var newDate;
   String? formattedDate;
   @override
-
   bool isDate = false;
+
+  TextEditingController textController = TextEditingController();
+  // isChoose1 ? TextEditingController(text: hint1) : isChoose2 ? TextEditingController(text: hint2) : isChoose3 ? TextEditingController(text: hint3) : TextEditingController();
+  TextEditingController titleController =  TextEditingController();
+
   Widget build(BuildContext context) {
-    TextEditingController textController = isChoose1 ? TextEditingController(text: hint1) : isChoose2 ? TextEditingController(text: hint2) : isChoose3 ? TextEditingController(text: hint3) : TextEditingController();
-    TextEditingController titleController = TextEditingController();
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () {_askedToLeavePage();}, ),
@@ -64,6 +69,7 @@ class _InputNotesState extends State<InputNotes> {
                 else
                   ifEmpty();
                 setState(() {});
+                textController = TextEditingController(text: isChoose1 ? hint1 : isChoose2 ? hint2 : isChoose3 ? hint3 : '');
               }, icon: const Padding(
                 padding: EdgeInsets.only(top: 6, right: 10),
                 child: Icon(Icons.tips_and_updates_outlined),
@@ -74,68 +80,74 @@ class _InputNotesState extends State<InputNotes> {
 
         body: Container(
           padding: const EdgeInsets.all(16),
-            child: Column(children: [
-              const SizedBox(height: 16),
-              TextField(
-                style: const TextStyle(color: Colors.grey),
-                maxLines: 1,
-                controller: titleController,
-                decoration: const InputDecoration(
-                  iconColor: Colors.yellow,
-                  fillColor: Colors.white30,
-                  prefixIcon: Icon(Icons.book, color: Colors.grey,),
-                  filled: true,
-                  labelText: 'Название',
-                  labelStyle: TextStyle(color: Colors.grey),
-                ),
-              ),
-              const SizedBox(height: 16,),
-              TextField(
-                maxLines: 8,
-                style: const TextStyle(color: Colors.grey),
-                controller: textController,
-                decoration: const InputDecoration(
-                  iconColor: Colors.yellow,
-                  fillColor: Colors.white30,
-                  prefixIcon: Icon(Icons.notes, color: Colors.grey,),
-                  filled: true,
-                  labelText: 'Содержимое',
-                  labelStyle: TextStyle(color: Colors.grey),
-                ),
-              ),
-              const SizedBox(height: 16,),
-              Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _showCalendar(context);
-                    },
-                    child: isDate ? Text("$formattedDate") : const Icon(Icons.date_range, color: Colors.black,),
+            child: SingleChildScrollView(
+              child: Column(children: [
+                const SizedBox(height: 8),
+                TextField(
+                  style: const TextStyle(color: Colors.grey),
+                  maxLines: 1,
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    // iconColor: Colors.yellow,
+                    fillColor: Colors.white30,
+                    // prefixIcon: Icon(Icons.book, color: Colors.grey,),
+                    filled: true,
+                    hintText: 'Название',
+                    hintStyle: TextStyle(color: Colors.grey),
                   ),
-                  ElevatedButton(
-                    onPressed: () async{
-                       if((textController.text != "") & (titleController.text != ""))
-                       {counterUpdate();
-                       await addStory(text: textController.text, title: titleController.text);
-                       if (toDelete.isNotEmpty){
-                         List<String> hints = toDelete[1];
-                         List<int> idList = toDelete[2];
-                         if (isChoose1 == true){hints.removeAt(idList.elementAt(0));
-                         updateHints(hints);}
-                         else if (isChoose2 == true){hints.removeAt(idList.elementAt(1));
-                         updateHints(hints);}
-                         else if (isChoose3 == true){hints.removeAt(idList.elementAt(2));
-                         updateHints(hints);}}
-                       Navigator.pop(context);}
-                       else {
-                         _ifNotFull();
-                       }
-                    },
-                    child: Text("Сохранить".toUpperCase()),
+                ),
+                const SizedBox(height: 16,),
+                TextField(
+                  // initialValue: isChoose1 ? hint1 : isChoose2 ? hint2 : isChoose3 ? hint3 : '',
+                  expands: false,
+                  maxLines: null,
+                  minLines: 35,
+                  style: const TextStyle(color: Colors.grey),
+                  controller: textController,
+                  decoration: InputDecoration(
+                    // isChoose1 ? hint1 : isChoose2 ? hint2 : isChoose3 ? hint3 : null,
+                    // iconColor: Colors.yellow,
+                    fillColor: Colors.white30,
+                    // prefixIcon: Icon(Icons.notes, color: Colors.grey,),
+                    filled: true,
+                    hintText: 'Содержимое',
+                    hintStyle: TextStyle(color: Colors.grey),
                   ),
-                ]
+                ),
+                const SizedBox(height: 16,),
+                Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _showCalendar(context);
+                      },
+                      child: isDate ? Text("$formattedDate") : const Icon(Icons.date_range, color: Colors.black,),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async{
+                         if((textController.text != "") & (titleController.text != ""))
+                         {counterUpdate();
+                         await addStory(text: textController.text, title: titleController.text);
+                         if (toDelete.isNotEmpty){
+                           List<String> hints = toDelete[1];
+                           List<int> idList = toDelete[2];
+                           if (isChoose1 == true){hints.removeAt(idList.elementAt(0));
+                           updateHints(hints);}
+                           else if (isChoose2 == true){hints.removeAt(idList.elementAt(1));
+                           updateHints(hints);}
+                           else if (isChoose3 == true){hints.removeAt(idList.elementAt(2));
+                           updateHints(hints);}}
+                         Navigator.pop(context);}
+                         else {
+                           _ifNotFull();
+                         }
+                      },
+                      child: Text("Сохранить".toUpperCase()),
+                    ),
+                  ]
+                ),
+              ],
               ),
-            ],
             )
         )
     );
@@ -184,6 +196,8 @@ class _InputNotesState extends State<InputNotes> {
       formattedDate = formatted;
       isDate = true;
     });
+
+
     }
   }
 
@@ -274,7 +288,7 @@ class _InputNotesState extends State<InputNotes> {
                   child: hints.length > 2 ? Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
                         child: ElevatedButton(onPressed: (){
                           isHigh1 = true; isHigh2 = false; isHigh3 = false;
                           setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
@@ -285,7 +299,7 @@ class _InputNotesState extends State<InputNotes> {
                       ),
 
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
                         child: ElevatedButton(onPressed: (){
                           isHigh1 = false; isHigh2 = true; isHigh3 = false;
                           setState(() {});}, child: Text(hints.elementAt(idList.elementAt(1)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh2 ? ElevatedButton.styleFrom(
@@ -296,7 +310,7 @@ class _InputNotesState extends State<InputNotes> {
                       ),
 
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
                         child: ElevatedButton(onPressed: (){
                           isHigh1 = false; isHigh2 = false; isHigh3 = true;
                           setState(() {});}, child: Text(hints.elementAt(idList.elementAt(2)), textAlign: TextAlign.center,  style: TextStyle(fontSize: 16),), style: isHigh3 ? ElevatedButton.styleFrom(
@@ -340,7 +354,7 @@ class _InputNotesState extends State<InputNotes> {
                   ): hints.length > 1 ? Column(
                     children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
                       child: ElevatedButton(onPressed: (){
                           isHigh1 = true; isHigh2 = false; isHigh3 = false;
                           setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(
@@ -351,12 +365,13 @@ class _InputNotesState extends State<InputNotes> {
                     ),
 
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
                           child: ElevatedButton(onPressed: (){
                           isHigh1 = false; isHigh2 = true; isHigh3 = false;
                           setState(() {});}, child: Text(hints.elementAt(idList.elementAt(1)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh2 ? ElevatedButton.styleFrom(
                           primary: Colors.green,
-                          ):ElevatedButton.styleFrom(
+                          ) :
+                          ElevatedButton.styleFrom(
                           primary: Colors.yellow,
                           )),
                         ),
@@ -385,7 +400,7 @@ class _InputNotesState extends State<InputNotes> {
                       }, child: Text('Потвердить'))]): hints.length > 0 ? Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.only(top: 2, bottom: 2, left: 8, right: 8),
                           child: ElevatedButton(onPressed: (){
                             isHigh1 = true; isHigh2 = false; isHigh3 = false;
                             setState(() {});}, child: Text(hints.elementAt(idList.elementAt(0)), textAlign: TextAlign.center, style: TextStyle(fontSize: 16),), style: isHigh1 ? ElevatedButton.styleFrom(

@@ -47,6 +47,8 @@ class NotificationApi {
 
     );
   }
-
+ static Future cancelNotification() async {
+   await _notifications.cancelAll();
+ }
 
 }

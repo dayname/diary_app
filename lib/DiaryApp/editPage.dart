@@ -18,9 +18,11 @@ class _editStoryState extends State<editStory> {
   @override
   var date;
   var newDate;
-  String? formattedDate;
+  String formattedDate = '';
   bool isDate = false;
+
   Widget build(BuildContext context) {
+    String formattedDate1 = widget.dataStory.date;
     TextEditingController textController = TextEditingController(text: widget.dataStory.text);
     TextEditingController titleController = TextEditingController(text: widget.dataStory.title);
     return Scaffold(
@@ -34,60 +36,77 @@ class _editStoryState extends State<editStory> {
 
         body: Container(
             padding: const EdgeInsets.all(16),
-            child: Column(children: [
-              const SizedBox(height: 16),
-              TextField(
-                style: TextStyle(color: Colors.grey),
-                maxLines: 1,
-                controller: titleController,
-                decoration: const InputDecoration(
-                  iconColor: Colors.yellow,
-                  fillColor: Colors.white30,
-                  prefixIcon: Icon(Icons.book, color: Colors.grey,),
-                  filled: true,
-                  labelText: 'Название',
-                  labelStyle: TextStyle(color: Colors.grey),
+            child: SingleChildScrollView(
+              child: Column(children: [
+                const SizedBox(height: 8),
+                TextField(
+                  style: TextStyle(color: Colors.grey),
+                  maxLines: 1,
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    iconColor: Colors.yellow,
+                    fillColor: Colors.white30,
+                    // prefixIcon: Icon(Icons.book, color: Colors.grey,),
+                    filled: true,
+                    hintText: 'Название',
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16,),
-              TextField(
-                maxLines: 8,
-                style: TextStyle(color: Colors.grey),
-                controller: textController,
-                decoration: const InputDecoration(
-                  // hintText: dataStory.text,
-                  iconColor: Colors.yellow,
-                  fillColor: Colors.white30,
-                  prefixIcon: Icon(Icons.notes, color: Colors.grey,),
-                  filled: true,
-                  labelText: 'Содержимое',
-                  labelStyle: TextStyle(color: Colors.grey),
+                const SizedBox(height: 16,),
+                TextField(
+                  maxLines: null,
+                  minLines: 35,
+                  style: TextStyle(color: Colors.grey),
+                  controller: textController,
+                  decoration: const InputDecoration(
+                    // hintText: dataStory.text,
+                    iconColor: Colors.yellow,
+                    fillColor: Colors.white30,
+                    // prefixIcon: Icon(Icons.notes, color: Colors.grey,),
+                    filled: true,
+                    hintText: 'Содержимое',
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
                 ),
+                const SizedBox(height: 16,),
+                Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      formattedDate == '' ?
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _showCalendar(context);
+                          print(formattedDate);
+                          print(formattedDate1);
+                          await updateDate(date: formattedDate);
+                          setState(() {});
+                        },
+                        child: formattedDate1.isNotEmpty ? Text("$formattedDate1") : Icon(Icons.date_range, color: Colors.black,),
+                      ) :
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _showCalendar(context);
+                          await updateDate(date: formattedDate);
+
+                          setState(() {});
+                        },
+                        child: Text("$formattedDate"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async{
+                          if((textController.text != "") & (titleController.text != "")){
+                            await updateStory(text: textController.text, title: titleController.text);
+                            Navigator.pop(context);
+                          }
+                          else {
+                            _ifNotFull();
+                          }
+                        },
+                        child: Text("Сохранить".toUpperCase()),
+                      ),
+                    ]
+                ),
+              ],
               ),
-              const SizedBox(height: 16,),
-              Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _showCalendar(context);
-                      },
-                      child: isDate ? Text("$formattedDate") : Icon(Icons.date_range, color: Colors.black,),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async{
-                        if((textController.text != "") & (titleController.text != "")){
-                          await updateStory(text: textController.text, title: titleController.text);
-                          Navigator.pop(context);
-                        }
-                        else {
-                          _ifNotFull();
-                        }
-                      },
-                      child: Text("Сохранить".toUpperCase()),
-                    ),
-                  ]
-              ),
-            ],
             )
         )
     );
@@ -101,7 +120,16 @@ class _editStoryState extends State<editStory> {
         .doc("${FirebaseAuth.instance.currentUser?.uid}")
         .collection("UserStories")
         .doc("${widget.dataStory.docId}")
-        .update({"title": title, "text": text, "date" : formattedDate});
+        .update({"title": title, "text": text});
+  }
+
+  Future<void> updateDate({required String date})
+  async {
+    await FirebaseFirestore.instance.collection("UsersData")
+        .doc("${FirebaseAuth.instance.currentUser?.uid}")
+        .collection("UserStories")
+        .doc("${widget.dataStory.docId}")
+        .update({"date" : date});
   }
 
   Future _showCalendar(BuildContext context) async{
@@ -126,10 +154,6 @@ class _editStoryState extends State<editStory> {
     }
   }
 
-  String dateFormatter(){
-    final String formatted = DateFormat.yMMMd().format(date);
-    return formatted;
-  }
 
   Future<void> _ifNotFull() async {
     return showDialog<void>(

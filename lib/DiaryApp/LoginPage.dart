@@ -99,12 +99,12 @@ void listenNotifications() => NotificationApi.onNotifications.stream.listen(onCl
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: TextField(
+          child: TextFormField(
             maxLines: 1,
             obscureText: true,
             style: TextStyle(color: Colors.grey),
             controller: passwordController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.lock,
                 color: Colors.grey,

@@ -19,13 +19,7 @@ class profilePage extends StatefulWidget {
 
 class _profilePageState extends State<profilePage> {
   @override
-  // void initState() {
-  //   super.initState();
-  //
-  //   setState(() {
-  //     getUserInfo().whenComplete(() => null);
-  //   });
-  // }
+
   var hour;
   var minute;
   UserData? userData;
@@ -34,8 +28,8 @@ class _profilePageState extends State<profilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(top: 6),
+        title: const Padding(
+          padding: EdgeInsets.only(top: 6),
           child: Text("Мой профиль"),
         ),
       ),
@@ -49,58 +43,59 @@ class _profilePageState extends State<profilePage> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 5),
+            const Padding(
+              padding: EdgeInsets.only(left: 5),
               child: ListTile(
                 title: Text("Аккаунт", style: TextStyle(color: Colors.grey, fontSize: 23),),
               ),
             ),
+            const Divider(color: Colors.grey),
             ListTile(
               onTap: () {
                 confirmDialog();
               },
-              leading: Icon(Icons.mark_email_read, color: Colors.grey),
-              title: Text("Ваша почта не потверждена", style: TextStyle(color: Colors.grey),),
-              subtitle: Text("Потвердите следуя указаниям", style: TextStyle(color: Colors.grey),),
+              leading: const Icon(Icons.mark_email_read, color: Colors.grey),
+              title: const Text("Ваша почта не потверждена", style: TextStyle(color: Colors.grey),),
+              subtitle: const Text("Потвердите следуя указаниям", style: TextStyle(color: Colors.grey),),
             ),
-            Divider(color: Colors.grey,),
+            const Divider(color: Colors.grey,),
 
             ListTile(
               onTap:() async {
                 await updateNameDialog();
                 setState(() {});
               },
-              leading: Icon(Icons.person, color: Colors.grey),
-              title: Text("${FirebaseAuth.instance.currentUser?.displayName}", style: TextStyle(color: Colors.grey),),
-              subtitle: Text("Нажмите для смены имени", style: TextStyle(color: Colors.grey),),
+              leading: const Icon(Icons.person, color: Colors.grey),
+              title: Text("${FirebaseAuth.instance.currentUser?.displayName}", style: const TextStyle(color: Colors.grey),),
+              subtitle: const Text("Нажмите для смены имени", style: TextStyle(color: Colors.grey),),
             ),
-            Divider(color: Colors.grey),
+            const Divider(color: Colors.grey),
             ListTile(onTap:() async {
               await updateEmailDialog();
               setState((){});
             },
-              leading: Icon(Icons.mail, color: Colors.grey),
-              title: Text("${FirebaseAuth.instance.currentUser?.email}", style: TextStyle(color: Colors.grey),),
-              subtitle: Text("Нажмите для смены почты", style: TextStyle(color: Colors.grey),),
+              leading: const Icon(Icons.mail, color: Colors.grey),
+              title: Text("${FirebaseAuth.instance.currentUser?.email}", style: const TextStyle(color: Colors.grey),),
+              subtitle: const Text("Нажмите для смены почты", style: TextStyle(color: Colors.grey),),
             ),
-            Divider(color: Colors.grey),
+            const Divider(color: Colors.grey),
             ListTile(
               onTap:() async {
                 await changePassword();
                 setState((){});
               },
 
-              leading: Icon(Icons.lock, color: Colors.grey,),
-              title: Text("Нажмите для смены пароля", style: TextStyle(color: Colors.grey),),
+              leading: const Icon(Icons.lock, color: Colors.grey,),
+              title: const Text("Нажмите для смены пароля", style: TextStyle(color: Colors.grey),),
             ),
-            Divider(color: Colors.grey,),
-            Padding(
-              padding: const EdgeInsets.only(left: 5),
+            const Divider(color: Colors.grey,),
+            const Padding(
+              padding: EdgeInsets.only(left: 5),
               child: ListTile(
                 title: Text("Уведомление", style: TextStyle(color: Colors.grey, fontSize: 23),),
               ),
             ),
-            Divider(color: Colors.grey,),
+            const Divider(color: Colors.grey,),
             ListTile(
               onTap: () async{
                 var Time;
@@ -144,11 +139,10 @@ class _profilePageState extends State<profilePage> {
                     Time = DateTime.parse("$year-0$month-0$day $hour:$minute:00.000000");
                   }
                   List<String> titleCollection = ["👋Привет, ${FirebaseAuth.instance.currentUser?.displayName}!", "Как дела, ${FirebaseAuth.instance.currentUser?.displayName}?"];
-                  List<String> bodyCollection = ["Время вести дневник⌚", "Напиши о том, как прошел день", "Не знаешь о чем писать? Воспользуйся подсказками!", "Поделись впечатлениями о сегодняшнем дне"];
+                  List<String> bodyCollection = ["Напиши о том, как прошел день", "Поделись впечатлениями о сегодняшнем дне"];
                   //2022-05-11 21:15:40.622207
                   int title = Random().nextInt(titleCollection.length);
                   int body = Random().nextInt(bodyCollection.length);
-                  timeUpdate(hour, minute);
                   print(Time);
                   NotificationApi.showNotificationDaily(
                     title: titleCollection[title],
@@ -160,26 +154,26 @@ class _profilePageState extends State<profilePage> {
                 );
                 setState(() {});
               },
-              title: hour == null ? Text("Настройте напоминатель", style: TextStyle(color: Colors.grey)) : Text("Время показа - ${hour}:${minute}", style: TextStyle(color: Colors.grey)),
-              leading: Icon(Icons.schedule, color: Colors.grey,),
+              title: hour == null ? const Text("Настройте напоминатель", style: TextStyle(color: Colors.grey)) : Text("Время показа - ${hour}:${minute}", style: const TextStyle(color: Colors.grey)),
+              leading: const Icon(Icons.schedule, color: Colors.grey,),
             ),
-            Divider(color: Colors.grey,),
+            const Divider(color: Colors.grey,),
             ListTile(
               onTap: ()async {
                 await NotificationApi.cancelNotification();
                 ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('Уведомления отключены')));
+                    .showSnackBar(const SnackBar(content: Text('Уведомления отключены')));
               },
-              title: Text("Отключить уведомления", style: TextStyle(color: Colors.grey),),
-              leading: Icon(Icons.cancel_outlined, color: Colors.grey,),
+              title: const Text("Отключить уведомления", style: TextStyle(color: Colors.grey),),
+              leading: const Icon(Icons.cancel_outlined, color: Colors.grey,),
             ),
-            Divider(color: Colors.grey,),
+            const Divider(color: Colors.grey,),
             ListTile(
               onTap: () async{
                 await _askedToLogOut();
               },
-              leading: Icon(Icons.logout, color: Colors.grey),
-              title: Text("Выйти из аккаунта", style: TextStyle(color: Colors.grey)),
+              leading: const Icon(Icons.logout, color: Colors.grey),
+              title: const Text("Выйти из аккаунта", style: TextStyle(color: Colors.grey)),
             )
           ],
         ),
@@ -194,50 +188,50 @@ class _profilePageState extends State<profilePage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 5),
+              const Padding(
+                padding: EdgeInsets.only(left: 5),
                 child: ListTile(
                   title: Text("Аккаунт", style: TextStyle(color: Colors.grey, fontSize: 23),),
                 ),
               ),
-              Divider(color: Colors.grey,),
+              const Divider(color: Colors.grey,),
 
               ListTile(
                 onTap:() async {
                   await updateNameDialog();
                   setState(() {});
               },
-                leading: Icon(Icons.person, color: Colors.grey),
-                title: Text("${FirebaseAuth.instance.currentUser?.displayName}", style: TextStyle(color: Colors.grey),),
-                subtitle: Text("Нажмите для смены имени", style: TextStyle(color: Colors.grey),),
+                leading: const Icon(Icons.person, color: Colors.grey),
+                title: Text("${FirebaseAuth.instance.currentUser?.displayName}", style: const TextStyle(color: Colors.grey),),
+                subtitle: const Text("Нажмите для смены имени", style: TextStyle(color: Colors.grey),),
               ),
-              Divider(color: Colors.grey),
+              const Divider(color: Colors.grey),
               ListTile(onTap:() async {
                 await updateEmailDialog();
                 setState((){});
               },
-                leading: Icon(Icons.mail, color: Colors.grey),
-                title: Text("${FirebaseAuth.instance.currentUser?.email}", style: TextStyle(color: Colors.grey),),
-                subtitle: Text("Нажмите для смены почты", style: TextStyle(color: Colors.grey),),
+                leading: const Icon(Icons.mail, color: Colors.grey),
+                title: Text("${FirebaseAuth.instance.currentUser?.email}", style: const TextStyle(color: Colors.grey),),
+                subtitle: const Text("Нажмите для смены почты", style: TextStyle(color: Colors.grey),),
               ),
-              Divider(color: Colors.grey),
+              const Divider(color: Colors.grey),
               ListTile(
                 onTap:() async {
                   await changePassword();
                   setState((){});
                 },
 
-                leading: Icon(Icons.lock, color: Colors.grey,),
-                title: Text("Нажмите для смены пароля", style: TextStyle(color: Colors.grey),),
+                leading: const Icon(Icons.lock, color: Colors.grey,),
+                title: const Text("Нажмите для смены пароля", style: TextStyle(color: Colors.grey),),
               ),
-              Divider(color: Colors.grey,),
-              Padding(
-                padding: const EdgeInsets.only(left: 5),
+              const Divider(color: Colors.grey,),
+              const Padding(
+                padding: EdgeInsets.only(left: 5),
                 child: ListTile(
                   title: Text("Уведомление", style: TextStyle(color: Colors.grey, fontSize: 23),),
                 ),
               ),
-              Divider(color: Colors.grey,),
+              const Divider(color: Colors.grey,),
               ListTile(
                 onTap: () async{
                   var Time;
@@ -281,11 +275,10 @@ class _profilePageState extends State<profilePage> {
                       Time = DateTime.parse("$year-0$month-0$day $hour:$minute:00.000000");
                     }
                     List<String> titleCollection = ["👋Привет, ${FirebaseAuth.instance.currentUser?.displayName}!", "Как дела, ${FirebaseAuth.instance.currentUser?.displayName}?"];
-                    List<String> bodyCollection = ["Время вести дневник⌚", "Напиши о том, как прошел день", "Не знаешь о чем писать? Воспользуйся подсказками!", "Поделись впечатлениями о сегодняшнем дне"];
+                    List<String> bodyCollection = ["Напиши о том, как прошел день", "Поделись впечатлениями о сегодняшнем дне"];
                     //2022-05-11 21:15:40.622207
                     int title = Random().nextInt(titleCollection.length);
                     int body = Random().nextInt(bodyCollection.length);
-                    timeUpdate(hour, minute);
                     print(Time);
                     NotificationApi.showNotificationDaily(
                       title: titleCollection[title],
@@ -297,26 +290,26 @@ class _profilePageState extends State<profilePage> {
                   );
                 setState(() {});
                 },
-                title: hour == null ? Text("Настройте напоминатель", style: TextStyle(color: Colors.grey)) : Text("Время показа - ${hour}:${minute}", style: TextStyle(color: Colors.grey)),
-                leading: Icon(Icons.schedule, color: Colors.grey,),
+                title: hour == null ? const Text("Настройте напоминатель", style: TextStyle(color: Colors.grey)) : Text("Время показа - ${hour}:${minute}", style: const TextStyle(color: Colors.grey)),
+                leading: const Icon(Icons.schedule, color: Colors.grey,),
               ),
-              Divider(color: Colors.grey,),
+              const Divider(color: Colors.grey,),
               ListTile(
                 onTap: ()async {
                   await NotificationApi.cancelNotification();
                   ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Уведомления отключены')));
+                      .showSnackBar(const SnackBar(content: Text('Уведомления отключены')));
                 },
-                title: Text("Отключить уведомления", style: TextStyle(color: Colors.grey),),
-                leading: Icon(Icons.cancel_outlined, color: Colors.grey,),
+                title: const Text("Отключить уведомления", style: TextStyle(color: Colors.grey),),
+                leading: const Icon(Icons.cancel_outlined, color: Colors.grey,),
               ),
-              Divider(color: Colors.grey,),
+              const Divider(color: Colors.grey,),
               ListTile(
                 onTap: () async{
                 await _askedToLogOut();
                 },
-                leading: Icon(Icons.logout, color: Colors.grey),
-                title: Text("Выйти из аккаунта", style: TextStyle(color: Colors.grey)),
+                leading: const Icon(Icons.logout, color: Colors.grey),
+                title: const Text("Выйти из аккаунта", style: TextStyle(color: Colors.grey)),
               )
             ],
           ),
@@ -333,7 +326,7 @@ class _profilePageState extends State<profilePage> {
               return
                 isSended ?
                 SimpleDialog(
-                  title: Text(
+                  title: const Text(
                     'Далее для полной верификации требуется повторная авторизация. Сделать это сейчас?',
                     textAlign: TextAlign.center,),
                   children: <Widget>[Padding(
@@ -350,10 +343,10 @@ class _profilePageState extends State<profilePage> {
                                 builder: (context) => LoginPage(),
                               )
                           );
-                        }, child: Text("Да", style: TextStyle(fontSize: 20),)),
+                        }, child: const Text("Да", style: TextStyle(fontSize: 20),)),
                         ElevatedButton(onPressed: () {
                           Navigator.pop(context);
-                        }, child: Text("Нет", style: TextStyle(fontSize: 20),)),
+                        }, child: const Text("Нет", style: TextStyle(fontSize: 20),)),
                       ],
                     ),
                   ),
@@ -372,7 +365,7 @@ class _profilePageState extends State<profilePage> {
                         isSended = true;
                         setState(() {});
                       },
-                          child: Text(
+                          child: const Text(
                             "Отправить", style: TextStyle(fontSize: 20),)),
                     ),
                   ],
@@ -405,11 +398,20 @@ class _profilePageState extends State<profilePage> {
             Padding(
               padding: const EdgeInsets.only(left: 40, right: 40),
               child: ElevatedButton(onPressed: () async{
-                await FirebaseAuth.instance.currentUser?.updateDisplayName(newNameController.text);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('Имя успешно изменено')));
-              }, child: Text("Сменить имя")),
+                if (newNameController.text != '') {
+                        await FirebaseAuth.instance.currentUser
+                            ?.updateDisplayName(newNameController.text);
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Имя успешно изменено')));
+                      }
+                else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Заполните поле')));
+                }
+                    }, child: const Text("Сменить имя")),
             )],
           );
         }
@@ -457,14 +459,26 @@ class _profilePageState extends State<profilePage> {
               Padding(
                 padding: const EdgeInsets.only(left: 40, right: 40),
                 child: ElevatedButton(onPressed: () async{
-                  String email = FirebaseAuth.instance.currentUser?.email as String;
-                  FireAuth.reAuthUser(password: passwordController.text, email: email, context: context);
-                  // await FirebaseAuth.instance.signInWithEmailAndPassword(email: "${FirebaseAuth.instance.currentUser?.email}", password: passwordController.text);
-                  await FirebaseAuth.instance.currentUser?.updateEmail(newEmailController.text);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Почта успешно изменена')));
-                }, child: Text("Сменить почту")),
+                  if ((passwordController.text != '') && (newEmailController.text != '')) {
+                        String email =
+                            FirebaseAuth.instance.currentUser?.email as String;
+                        FireAuth.reAuthUser(
+                            password: passwordController.text,
+                            email: email,
+                            context: context);
+                        // await FirebaseAuth.instance.signInWithEmailAndPassword(email: "${FirebaseAuth.instance.currentUser?.email}", password: passwordController.text);
+                        await FirebaseAuth.instance.currentUser
+                            ?.updateEmail(newEmailController.text);
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Почта успешно изменена')));
+                      } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Заполните поля')));
+                  }
+                    }, child: const Text("Сменить почту")),
               )],
           );
         }
@@ -476,7 +490,7 @@ class _profilePageState extends State<profilePage> {
     TextEditingController newPassword2 = TextEditingController();
     await showDialog(context: context, builder: (BuildContext context){
       return SimpleDialog(
-        title: Text("Заполните все поля для смены пароля"),
+        title: const Text("Заполните все поля для смены пароля", textAlign: TextAlign.center,),
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -492,7 +506,7 @@ class _profilePageState extends State<profilePage> {
                 labelStyle: TextStyle(color: Colors.grey),
               )),
         ),
-        SizedBox(height: 8,),
+        const SizedBox(height: 8,),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
@@ -503,11 +517,11 @@ class _profilePageState extends State<profilePage> {
             iconColor: Colors.yellow,
             fillColor: Colors.white30,
             filled: true,
-            labelText: 'Пароль',
+            labelText: 'Новый пароль',
             labelStyle: TextStyle(color: Colors.grey),
           )),
         ),
-        SizedBox(height: 8,),
+        const SizedBox(height: 8,),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
@@ -526,39 +540,52 @@ class _profilePageState extends State<profilePage> {
         Padding(
           padding: const EdgeInsets.only(left: 40, right: 40),
           child: ElevatedButton(onPressed: ()async{
-            if ((newPassword1.text == newPassword2.text) &&(newPassword2.text.length > 5)) {
-              String email = FirebaseAuth.instance.currentUser?.email as String;
-              FireAuth.reAuthUser(password: passwordController.text, email: email, context: context);
-              await FirebaseAuth.instance.currentUser?.updatePassword(
-                  newPassword2.text);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('Пароль успешно изменен')));
-            }
-            else {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('Пароли не совпадают или подберите пароль по-длиннее')));
-            }
-            }, child: Text("Сменить пароль")),
+            if ((passwordController.text != '') && (newPassword1.text != '') && (newPassword2.text != '')) {
+                        if ((newPassword1.text == newPassword2.text) &&
+                            (newPassword2.text.length > 5)) {
+                          String email = FirebaseAuth
+                              .instance.currentUser?.email as String;
+                          FireAuth.reAuthUser(
+                              password: passwordController.text,
+                              email: email,
+                              context: context);
+                          await FirebaseAuth.instance.currentUser
+                              ?.updatePassword(newPassword2.text);
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Пароль успешно изменен')));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              content: Text(
+                                  'Пароли не совпадают или подберите пароль по-длиннее')));
+                        }
+                      }
+                      else {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text(
+                      'Заполните все поля')));
+                      }
+                    }, child: const Text("Сменить пароль")),
         )
       ],);
     });
   }
-  Future<void> getUserInfo() async {
-    await FirebaseFirestore.instance.collection("UsersData")
-        .doc("${FirebaseAuth.instance.currentUser?.uid}")
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      userData = UserData.fromDoc(documentSnapshot);
-    });
-  }
+  // Future<void> getUserInfo() async {
+  //   await FirebaseFirestore.instance.collection("UsersData")
+  //       .doc("${FirebaseAuth.instance.currentUser?.uid}")
+  //       .get()
+  //       .then((DocumentSnapshot documentSnapshot) {
+  //     userData = UserData.fromDoc(documentSnapshot);
+  //   });
+  // }
 
-  void timeUpdate(dynamic hour, dynamic minute)async{
-    await FirebaseFirestore.instance.collection("UsersData")
-        .doc("${FirebaseAuth.instance.currentUser?.uid}")
-        .update({"hour": hour, "minute": minute});
-
-  }
+  // void timeUpdate(dynamic hour, dynamic minute)async{
+  //   await FirebaseFirestore.instance.collection("UsersData")
+  //       .doc("${FirebaseAuth.instance.currentUser?.uid}")
+  //       .update({"hour": hour, "minute": minute});
+  //
+  // }
   Future<void> _askedToLogOut() async {
     await showDialog<void>(
         context: context,
@@ -579,8 +606,8 @@ class _profilePageState extends State<profilePage> {
                           builder: (context) => LoginPage(),
                         )
                     );
-                  }, child: Text("Да", style: TextStyle(fontSize: 20),)),
-                  ElevatedButton(onPressed: () {Navigator.pop(context);}, child: Text("Нет", style: TextStyle(fontSize: 20),)),
+                  }, child: const Text("Да", style: TextStyle(fontSize: 20),)),
+                  ElevatedButton(onPressed: () {Navigator.pop(context);}, child: const Text("Нет", style: TextStyle(fontSize: 20),)),
                 ],
               ),
             ),
@@ -589,6 +616,5 @@ class _profilePageState extends State<profilePage> {
         }
     );
   }
-
-  }
+}
 

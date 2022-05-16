@@ -79,7 +79,7 @@ void listenNotifications() => NotificationApi.onNotifications.stream.listen(onCl
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(top: 8.0, bottom: 8, left: 16, right: 16),
           child: TextField(
             style: TextStyle(color: Colors.grey),
             maxLines: 1,
@@ -98,7 +98,7 @@ void listenNotifications() => NotificationApi.onNotifications.stream.listen(onCl
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(top: 8.0, bottom: 8, left: 16, right: 16),
           child: TextFormField(
             maxLines: 1,
             obscureText: true,

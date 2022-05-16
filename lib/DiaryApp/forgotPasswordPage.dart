@@ -43,11 +43,16 @@ class _forgotPasswordPageState extends State<forgotPasswordPage> {
           ),
         ),
         ElevatedButton(onPressed: () async{
-          FireAuth.resetPassword(emailController.text, context);
-          isClicked = true;
-          setState(() {
+          if (emailController.text != '') {
+            FireAuth.resetPassword(emailController.text, context);
+            isClicked = true;
+            setState(() {
 
-          });
+            });
+          }
+          else {
+            ifNotFul();
+          }
         }, child: const Text("Сбросить пароль", style: TextStyle(fontSize: 20),))
       ],
     );
@@ -55,8 +60,36 @@ class _forgotPasswordPageState extends State<forgotPasswordPage> {
   clicked(){
     return Center(
         child: Text(
-          "Ссылка для смены пароля отправлена на ${FirebaseAuth.instance
-              .currentUser?.email}", style: TextStyle(fontSize: 23, color: Colors.yellow.withOpacity(0.5)), textAlign: TextAlign.center,)
+          "Ссылка для смены пароля отправлена на ${emailController.text}", style: TextStyle(fontSize: 23, color: Colors.yellow.withOpacity(0.5)), textAlign: TextAlign.center,)
+    );
+  }
+
+  Future<void> ifNotFul() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ошибка'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Заполните все поля'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Хорошо'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
+
+

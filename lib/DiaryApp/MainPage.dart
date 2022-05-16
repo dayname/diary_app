@@ -93,18 +93,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   emptyViewBuild(){
-    return Container(
-      child:
-          Center(
-          child: Text(
-            '${currentUser.displayName}, напишите свою первую историю',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 25,
-                fontFamily: 'Rostov',
-                color: Colors.yellow.withOpacity(0.5)),
-          )
-       )
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        child:
+            Center(
+            child: Text(
+              '${currentUser.displayName}, напишите свою первую историю',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 25,
+                  fontFamily: 'Rostov',
+                  color: Colors.yellow.withOpacity(0.5)),
+            )
+         )
+      ),
     );
   }
 

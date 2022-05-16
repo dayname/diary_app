@@ -26,18 +26,16 @@ class InputNotes extends StatefulWidget {
   State<InputNotes> createState() => _InputNotesState();
 }
 
-late String hint1;
-late String hint2;
-late String hint3;
 
-
-
-bool isChoose1 = false;
-bool isChoose2 = false;
-bool isChoose3 = false;
 class _InputNotesState extends State<InputNotes> {
 
+  late String hint1;
+  late String hint2;
+  late String hint3;
 
+  bool isChoose1 = false;
+  bool isChoose2 = false;
+  bool isChoose3 = false;
   late UserData userData;
 
   Map<int, dynamic> toDelete = {};
@@ -125,6 +123,7 @@ class _InputNotesState extends State<InputNotes> {
                     ),
                     ElevatedButton(
                       onPressed: () async{
+
                          if((textController.text != "") & (titleController.text != ""))
                          {counterUpdate();
                          await addStory(text: textController.text, title: titleController.text);
@@ -444,12 +443,12 @@ class _InputNotesState extends State<InputNotes> {
   }
 
   Future<void> update13423() async{
-    List<String> list = ["${FirebaseAuth.instance.currentUser?.uid}"];
+    List<String> list = ["2qcoN8Zv5jcC3c2uFh5niOJTX4l2", "8prBzsfSaLXwuOLmlLM0k54QrGA2", "CtAzjRhXnxStRgkZzvA1TCNKUsj2", "F3ckFOqxRzXsBu8goibPO2QwURD3", "QfvOeGuVuRgyO1pRWcvAvsSSY5L2", "TbUxy5lClaSlWAqeTjdmv8R2ETy1", "bMLEfITwyyaKJqg9oKCpN3G14J33", "hU94bG2MnWXaZG6XQZZuTKk5R7g1", "jxtNZfCoASf9xXrhAQVunEdLZE03", "mlgi6mzymCR08s1oK1QsOdsfedB2", "tAp7ViqjnQawwBkPcimXFRsGomo1"];
     list.forEach((element) async{
       await FirebaseFirestore.instance.collection("UsersData")
           .doc("${element}")
           .update({
-        "hints" : ["Чтобы вы в себе изменили, если могли бы?", "Как выглядит ваша идеальная жизнь?", "Каким вы себя видите через 5, 10, 20 лет?", "Что бы вы рассказали о себе незнакомцу?", "Назовите ваши пять главнейших жизненных принципов.", "Что никто не знает о вас? Почему вы храните это в секрете?"],
+        "hints": ["Если бы вы могли достичь чего угодно в своей жизни, что бы это было и почему?", "Каковы ваши три самых сильных страха?", "Какие три вещи вы можете сделать, чтобы улучшить своё здоровье?", "Напишите о трудностях в вашей жизни. Как вы их преодолели?", "Напишите письмо человеку, который больше всех вас поддерживает.", "Что сделало вас счастливым сегодня?", "Куда бы вы поехали, если бы могли поехать куда угодно?", "Опишите ваш самый главный провал и то, чему он вас научил.", "Какие три урока вы извлекли из состояния гнева или депрессии?", "Чтобы вы в себе изменили, если могли бы?", "Как выглядит ваша идеальная жизнь?", "Каким вы себя видите через 5, 10, 20 лет?", "Что бы вы рассказали о себе незнакомцу?", "Назовите ваши пять главнейших жизненных принципов.", "Что никто не знает о вас? Почему вы храните это в секрете?", "Что бы ты мог делать по-другому, зная, что никто тебя не осудит?", "Есть ли у тебя что-то, за что ты держишься, что давно пора отпустить?", "Что нового вы сегодня узнали?", "Сто вещей, которые вам удаются.", "Сто вещей, которым вы благодарны.", "Чему вас научил сегодняшний день?", "Что в жизни друзей или коллег может вызвать у вас легкую зависть?", "Чем вы любите заниматься в свободное время?", "Что в жизни вы любите более всего и хотели бы, чтобы это происходило с вами как можно чаще?", "Чем вы любили заниматься в детстве? Кем хотели стать?", "Как давно вы научились чему-то новому?", "Кто вас вдохновляет?", "Когда вы в последний раз прочитали книгу? О чем она была?", "Если бы вам сказали, что через год вас не станет, чем бы вы занимались следующие 12 месяцев?"],
       });
     });
   }

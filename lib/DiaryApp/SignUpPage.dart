@@ -34,111 +34,114 @@ class _SignUpPageState extends State<SignUpPage> {
           padding: const EdgeInsets.only(top: 6),
           child: Center(child: Text("Регистрация", style: const TextStyle(fontSize: 24,),)),
         ),),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              style: TextStyle(color: Colors.grey),
-              maxLines: 1,
-              controller: nameController,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.person, color: Colors.grey,),
-                iconColor: Colors.yellow,
-                fillColor: Colors.white30,
-                filled: true,
-                labelText: 'Имя',
-                labelStyle: TextStyle(color: Colors.grey, fontSize: 16),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                style: TextStyle(color: Colors.grey),
+                maxLines: 1,
+                controller: nameController,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.person, color: Colors.grey,),
+                  iconColor: Colors.yellow,
+                  fillColor: Colors.white30,
+                  filled: true,
+                  labelText: 'Имя',
+                  labelStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              style: TextStyle(color: Colors.grey),
-              maxLines: 1,
-              controller: emailController,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.mail, color: Colors.grey,),
-                iconColor: Colors.yellow,
-                fillColor: Colors.white30,
-                filled: true,
-                labelText: 'Почта',
-                labelStyle: TextStyle(color: Colors.grey, fontSize: 16),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                style: TextStyle(color: Colors.grey),
+                maxLines: 1,
+                controller: emailController,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.mail, color: Colors.grey,),
+                  iconColor: Colors.yellow,
+                  fillColor: Colors.white30,
+                  filled: true,
+                  labelText: 'Почта',
+                  labelStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              maxLines: 1,
-              obscureText: true,
-              style: TextStyle(color: Colors.grey),
-              controller: passwordFirstController,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.lock, color: Colors.grey,),
-                iconColor: Colors.yellow,
-                fillColor: Colors.white30,
-                filled: true,
-                labelText: 'Пароль',
-                labelStyle: TextStyle(color: Colors.grey),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                maxLines: 1,
+                obscureText: true,
+                style: TextStyle(color: Colors.grey),
+                controller: passwordFirstController,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.lock, color: Colors.grey,),
+                  iconColor: Colors.yellow,
+                  fillColor: Colors.white30,
+                  filled: true,
+                  labelText: 'Пароль',
+                  labelStyle: TextStyle(color: Colors.grey),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              maxLines: 1,
-              obscureText: true,
-              style: TextStyle(color: Colors.grey),
-              controller: passwordSecondController,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.lock, color: Colors.grey,),
-                iconColor: Colors.yellow,
-                fillColor: Colors.white30,
-                filled: true,
-                labelText: 'Повторите пароль',
-                labelStyle: TextStyle(color: Colors.grey),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                maxLines: 1,
+                obscureText: true,
+                style: TextStyle(color: Colors.grey),
+                controller: passwordSecondController,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.lock, color: Colors.grey,),
+                  iconColor: Colors.yellow,
+                  fillColor: Colors.white30,
+                  filled: true,
+                  labelText: 'Повторите пароль',
+                  labelStyle: TextStyle(color: Colors.grey),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(onPressed: () async {
-              if (passwordFirstController.text == passwordSecondController.text){
-              if ((nameController.text != "") & (passwordFirstController.text != "") & (emailController.text != "")) {
-                User? user = await FireAuth
-                    .registerUsingEmailPassword(
-                  name: nameController.text,
-                  email: emailController.text,
-                  password: passwordFirstController.text,
-                  context: context,
-                );
-                setState(() {
-                });
-                if (user != null) {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MyHomePage(user: user),),);
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(onPressed: () async {
+                if (passwordFirstController.text == passwordSecondController.text){
+                if ((nameController.text != "") & (passwordFirstController.text != "") & (emailController.text != "")) {
+                  User? user = await FireAuth
+                      .registerUsingEmailPassword(
+                    name: nameController.text,
+                    email: emailController.text,
+                    password: passwordFirstController.text,
+                    context: context,
+                  );
+                  setState(() {
+                  });
+                  if (user != null) {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MyHomePage(user: user),),);
+                  }
                 }
-              }
-              else {
-                ifNotFul();
-              }
-              }
-              else {
-                ifNotMatch();
-              }
-            },
+                else {
+                  ifNotFul();
+                }
+                }
+                else {
+                  ifNotMatch();
+                }
+              },
 
-              child: Text("Зарегистрироваться".toUpperCase(),
-                style: TextStyle(fontSize: 20,),),
-              style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.only(
-                      right: 55, left: 55, top: 15, bottom: 13)
+                child: Text("Зарегистрироваться".toUpperCase(),
+                  style: TextStyle(fontSize: 20,),),
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.only(
+                        right: 55, left: 55, top: 15, bottom: 13)
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -18,11 +18,11 @@ class _editStoryState extends State<editStory> {
   @override
   var date;
   var newDate;
-  String formattedDate = '';
+  dynamic formattedDate = '';
   bool isDate = false;
 
   Widget build(BuildContext context) {
-    String formattedDate1 = widget.dataStory.date;
+    dynamic formattedDate1 = widget.dataStory.date;
     TextEditingController textController = TextEditingController(text: widget.dataStory.text);
     TextEditingController titleController = TextEditingController(text: widget.dataStory.title);
     return Scaffold(
@@ -80,7 +80,7 @@ class _editStoryState extends State<editStory> {
                           await updateDate(date: formattedDate);
                           setState(() {});
                         },
-                        child: formattedDate1.isNotEmpty ? Text("$formattedDate1") : Icon(Icons.date_range, color: Colors.black,),
+                        child: formattedDate1 != null ? Text("$formattedDate1") : Icon(Icons.date_range, color: Colors.black,),
                       ) :
                       ElevatedButton(
                         onPressed: () async {
